@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text.RegularExpressions;
 
 // A class to parse a string equation
 // and evaluate the result. 
@@ -11,6 +12,21 @@ public class ExpressionParser {
     { 
         {"(", 0 }, {"^", 1 }, {"*", 2 }, {"/", 3 }, {"+", 4 }, {"-", 5 }
     };
+    
+    public List<string> SplitExpression(string input)
+    {
+        string[] parts = Regex.Split(input, "(?=[)(*+/-])|(?<=[)(*+/-])");
+        List<string> output = new List<string>();
+        foreach(string part in parts)
+        {
+            if(part == "")
+            {
+                continue;
+            }
+            output.Add(part.Trim());
+        }
+        return output;
+    }
 
     // Converts an infix (i.e. normal) expression to a postfix one
     public Queue<string> ConvertToPostfix(List<string> input)
@@ -56,7 +72,7 @@ public class ExpressionParser {
     }
 
     // evaluates a postfix expression
-    public float EvaluateExpression(Queue<string> input)
+    public float EvaluateExpression(Queue<string> input, Dictionary<string, float> variables)
     {
         Queue<string> expression = new Queue<string>(input);
         Debug.Log(expression.Count);
@@ -93,13 +109,19 @@ public class ExpressionParser {
             }
             else
             {
-                // TODO: variable substitution
-                // for now we convert to floats
-                values.Push(float.Parse(element, System.Globalization.CultureInfo.InvariantCulture));
+                if (variables.ContainsKey(element))
+                    values.Push(variables[element]);
+                else
+                    values.Push(float.Parse(element, System.Globalization.CultureInfo.InvariantCulture));
             }
         }
         return values.Pop();
     }
-    
+
+    public float EvaluateExpression(Queue<string> input)
+    {
+        return EvaluateExpression(input, new Dictionary<string, float>());
+    }
+
 
 }

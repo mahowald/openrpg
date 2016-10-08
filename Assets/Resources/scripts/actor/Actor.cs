@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Actor : MonoBehaviour {
+public class Actor : MonoBehaviour, IPausable {
 
     // The current position of the actor
     public Vector3 Position
@@ -34,6 +34,27 @@ public class Actor : MonoBehaviour {
     private NavMeshAgent navAgent;
     private Vector3 destination;
 
+    public void Pause()
+    {
+        navAgent.Stop();
+    }
+
+    public void Unpause()
+    {
+        navAgent.Resume();
+    }
+
+    // Subscribe/Unsubscribe to our events
+    public void OnEnable()
+    {
+        EventManager.StartListening("Pause", Pause);
+        EventManager.StartListening("Unpause", Unpause);
+    }
+    public void OnDisable()
+    {
+        EventManager.StopListening("Pause", Pause);
+        EventManager.StopListening("Unpause", Unpause);
+    }
     // Called after instantiation, before Start 
     void Awake()
     {
