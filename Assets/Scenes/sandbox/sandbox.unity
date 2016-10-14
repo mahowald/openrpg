@@ -100,7 +100,6 @@ GameObject:
   - 4: {fileID: 173950661}
   - 195: {fileID: 173950660}
   - 114: {fileID: 173950662}
-  - 114: {fileID: 173950659}
   - 136: {fileID: 173950663}
   - 54: {fileID: 173950664}
   m_Layer: 0
@@ -110,18 +109,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &173950659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 173950658}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb894790e182d974585a8e54d6f267c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  actor: {fileID: 173950662}
 --- !u!195 &173950660
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -167,6 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35d8069b0e17cc419f9a4a001d3f388, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movementController: 1
 --- !u!136 &173950663
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -443,6 +431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf56244c45305a746a868847b78ff657, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  actor1: {fileID: 173950662}
 --- !u!4 &1207980665
 Transform:
   m_ObjectHideFlags: 0

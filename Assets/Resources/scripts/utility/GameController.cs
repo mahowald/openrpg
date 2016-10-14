@@ -22,6 +22,7 @@ public class GameController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        Do3DMouseClick();
         TogglePause();
 	}
 
@@ -43,4 +44,19 @@ public class GameController : MonoBehaviour {
             }
         }
     }
+
+    void Do3DMouseClick()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit))
+            {
+                EventManager.TriggerEvent("MouseClickLocation3D", hit.point);
+            }
+        }
+    }
+
+
 }

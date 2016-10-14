@@ -5,15 +5,34 @@ using System.Text.RegularExpressions;
 
 // A class to parse a string equation
 // and evaluate the result. 
-public class ExpressionParser {
+public class Expression {
+
+    // When we get a new expression, we store it in postfix notation
+    private Queue<string> pfEquation;
+
+    public Expression(string equation)
+    {
+        pfEquation = Expression.ConvertToPostfix(Expression.SplitExpression(equation));
+    }
+
     
+    public float Evaluate(Dictionary<string, float> variables)
+    {
+        return Expression.EvaluateExpression(pfEquation, variables);
+    }
+
+    public float Evaluate()
+    {
+        return Evaluate(new Dictionary<string, float>());
+    }
+
     // record the order of operations
-    Dictionary<string, int> operatorPrecedence = new Dictionary<string, int>()
+    static Dictionary<string, int> operatorPrecedence = new Dictionary<string, int>()
     { 
         {"(", 0 }, {"^", 1 }, {"*", 2 }, {"/", 3 }, {"+", 4 }, {"-", 5 }
     };
     
-    public List<string> SplitExpression(string input)
+    public static List<string> SplitExpression(string input)
     {
         string[] parts = Regex.Split(input, "(?=[)(*+/-])|(?<=[)(*+/-])");
         List<string> output = new List<string>();
@@ -29,7 +48,7 @@ public class ExpressionParser {
     }
 
     // Converts an infix (i.e. normal) expression to a postfix one
-    public Queue<string> ConvertToPostfix(List<string> input)
+    public static Queue<string> ConvertToPostfix(List<string> input)
     {
         Queue<string> output = new Queue<string>();
         Stack<string> operatorStack = new Stack<string>();
@@ -72,10 +91,9 @@ public class ExpressionParser {
     }
 
     // evaluates a postfix expression
-    public float EvaluateExpression(Queue<string> input, Dictionary<string, float> variables)
+    public static float EvaluateExpression(Queue<string> input, Dictionary<string, float> variables)
     {
         Queue<string> expression = new Queue<string>(input);
-        Debug.Log(expression.Count);
         Stack<float> values = new Stack<float>();
         List<string> operators = new List<string>(operatorPrecedence.Keys);
         while (expression.Count > 0)
@@ -118,10 +136,15 @@ public class ExpressionParser {
         return values.Pop();
     }
 
-    public float EvaluateExpression(Queue<string> input)
+    public static float EvaluateExpression(Queue<string> input)
     {
         return EvaluateExpression(input, new Dictionary<string, float>());
     }
 
+    // Serialization trick
+    public static implicit operator Expression(string value)
+    {
+        return new Expression(value);
+    }
 
 }
