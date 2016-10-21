@@ -12,6 +12,7 @@ public class EventManager : MonoBehaviour
     private Dictionary<string, Events.Vector3Event> v3EventDictionary;
     private static Queue<UnityEvent> eventQueue;
     private static Queue<Tuple<Events.Vector3Event, Vector3>> v3EventQueue;
+    
 
     private const int EventBatchSize = 500;
 

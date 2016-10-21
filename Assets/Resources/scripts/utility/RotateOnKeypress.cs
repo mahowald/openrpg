@@ -9,7 +9,7 @@ public class RotateOnKeypress : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        float rotateX = Input.GetAxis("Horizontal");
+        float rotateX = Input.GetAxis("HorizontalAlt");
         transform.Rotate(Vector3.up, rotateX);
 
     }

@@ -115,8 +115,20 @@ namespace Actor
 	
 	    // Update is called once per frame
 	    void Update () {
-
+            SetKeyboardMovement();
 	    }
+
+        private void SetKeyboardMovement()
+        {
+            if (movementController == MovementController.Player)
+            {
+                Vector3 moveDir = GameController.Get3DMovementDir();
+                if(Vector3.Magnitude(moveDir) > 0.2f)
+                {
+                    Destination = GameController.Get3DMovementDir() + Position;
+                }
+            }
+        }
     }
 
 

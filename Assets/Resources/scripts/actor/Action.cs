@@ -11,11 +11,15 @@ namespace Actor
     // All actions must have a source and a target
     // The target can be of a generic type, though 
     // (e.g., another Actor, the same Actor, a vector, ..)
-    public interface IAction<T>
+    public interface IAction
+    {
+        void DoAction();
+    }
+    
+    public interface IAction<T> : IAction
     {
         T Target { get; }
         Actor Source { get; }
-        void DoAction();
     }
     public abstract class Action<T> : IAction<T>
     {
@@ -48,9 +52,175 @@ namespace Actor
         IAction<T> Instantiate(Actor source, T target); // Create an actual Action from the prototype
     }
 
+    public class CombatActionPrototype<T> : IActionPrototype<T>
+    {
+
+        // The recharge time between uses.
+        private Expression cooldown;
+        [YamlMember(Alias ="cooldown")]
+        public Expression Cooldown
+        {
+            get { return cooldown; }
+            set { cooldown = value; }
+        }
+
+        // The effects associated with this action, and their duration.
+        private Dictionary<Effect, Expression> effects;
+
+        [YamlMember(Alias ="effects")]
+        public Dictionary<Effect, Expression> Effects
+        {
+            get { return effects; }
+            set { effects = value; }
+        }
+
+        // The cost of this action to the source
+        private Dictionary<string, Expression> cost;
+        
+        [YamlMember(Alias ="cost")]
+        public Dictionary<string, Expression> Cost
+        {
+            get { return cost; }
+            set { cost = value; }
+        }
+
+        // chance of success (e.g., chance to hit for an attack)
+        private Expression successChance;
+        [YamlMember(Alias ="success_chance")]
+        public Expression SuccessChance
+        {
+            get { return successChance; }
+            set { successChance = value; }
+        }
+
+        // chance of critical success (e.g. critical hit)
+        private Expression criticalChance;
+        [YamlMember(Alias = "critical_chance")]
+        public Expression CriticalChance
+        {
+            get { return criticalChance; }
+            set { criticalChance = value; }
+        }
+
+        // special effects to apply when critical success
+        private Dictionary<Effect, Expression> criticalEffects;
+        [YamlMember(Alias ="critical_effects")]
+        public Dictionary<Effect, Expression> CriticalEffects
+        {
+            get { return criticalEffects; }
+            set { criticalEffects = value; }
+        }
+
+        public CombatActionPrototype()
+        {
+            cooldown = new Expression("0");
+            effects = new Dictionary<Effect, Expression>();
+            cost = new Dictionary<string, Expression>();
+            successChance = new Expression("0");
+            criticalChance = new Expression("0");
+            criticalEffects = new Dictionary<Effect, Expression>();
+        }
+
+        public IAction<T> Instantiate(Actor source, T target)
+        {
+            return new CombatAction<T>(source, target, cooldown, effects, cost, successChance, criticalChance, criticalEffects);
+        }
+
+        public IActionPrototype<T> Deserialize(string s)
+        {
+            return new CombatActionPrototype<T>();
+        }
+
+    }
+
+    public class CombatAction<T> : Action<T>, IAction<T>
+    {
+        private Expression cooldown;
+        private Dictionary<Effect, Expression> effects;
+        private Dictionary<string, Expression> cost;
+        private Expression successChance;
+        private Expression criticalChance;
+        private Dictionary<Effect, Expression> criticalEffects;
+        protected Dictionary<string, float> variables;
+
+        private System.Random rand;
+
+        public CombatAction(Actor source, T target, Expression cooldown, Dictionary<Effect, Expression> effects, 
+            Dictionary<string, Expression> cost, Expression successChance, Expression criticalChance, Dictionary<Effect, Expression> criticalEffects) : base(source, target)
+        {
+            this.cooldown = cooldown;
+            this.effects = effects;
+            this.cost = cost;
+            this.successChance = successChance;
+            this.criticalChance = criticalChance;
+            this.criticalEffects = criticalEffects;
+            variables = new Dictionary<string, float>();
+            System.Random rand = new System.Random();
+        }
+
+        private bool firstRoll = true;
+        private bool firstCritRoll = true;
+        private bool isSuccess;
+        private bool isCriticalSuccess;
+
+        // should only do this roll once, so that 
+        // derived classes can still check the same roll
+        protected bool IsSuccess
+        {
+            get
+            {
+                if(firstRoll){
+                    float sroll = rand.Next(0, 100);
+                    float fsuccessChance = successChance.Evaluate();
+                    isSuccess = (fsuccessChance > sroll);
+                    firstRoll = false;
+                    return isSuccess;
+                }
+                else
+                    return isSuccess;
+            }
+        }
+
+        protected bool IsCriticalSuccess
+        {
+            get
+            {
+                if (firstCritRoll)
+                {
+                    float sroll = rand.Next(0, 100);
+                    float fcritChance = criticalChance.Evaluate();
+                    isCriticalSuccess = (fcritChance > sroll);
+                    firstCritRoll = false;
+                    return isCriticalSuccess;
+                }
+                else
+                    return isCriticalSuccess;
+            }
+        }
+
+        private void UpdateSourceVariables()
+        {
+            Attributes sourceAtts = this.Source.attributes;
+            foreach(string key in sourceAtts.attributes.Keys)
+            {
+                string newname = "source." + key;
+                float value = sourceAtts[key];
+                variables.Add(newname, value);
+            }
+        }
+
+        public override void DoAction()
+        {
+            foreach(string attribute in cost.Keys)
+            {
+                Source.attributes[attribute] -= cost[attribute].Evaluate(variables);
+            }
+        }
+
+    }
+
     public class ActorTransactionPrototype : IActionPrototype<Actor>
     {
-        
         private Dictionary<string, Expression> targetDiff;
         private Dictionary<string, Expression> sourceDiff;
 

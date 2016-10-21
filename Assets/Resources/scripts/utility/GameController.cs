@@ -7,6 +7,8 @@ public class GameController : MonoBehaviour {
 
     private static GameController gameController;
 
+    private static Transform gameCamera;
+
     public static GameController instance
     {
         get
@@ -18,6 +20,7 @@ public class GameController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         gameController = this;
+        gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Transform>();
 	}
 	
 	// Update is called once per frame
@@ -57,6 +60,19 @@ public class GameController : MonoBehaviour {
             }
         }
     }
+    
+    public static Vector3 Get3DMovementDir()
+    {
+        float moveInX = Input.GetAxis("Horizontal");
+        float moveInY = Input.GetAxis("Vertical");
+
+        Vector3 cameraForward = new Vector3(gameCamera.forward.x, 0, gameCamera.forward.z).normalized;
+        Vector3 cameraRight = new Vector3(gameCamera.right.x, 0, gameCamera.right.z).normalized;
+
+        return moveInX*cameraRight + moveInY*cameraForward;
+        // return moveInY*cameraForward;
+    }
+    
 
 
 }

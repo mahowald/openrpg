@@ -263,6 +263,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 713749026}
   - 114: {fileID: 713749027}
+  - 114: {fileID: 713749028}
   m_Layer: 0
   m_Name: CameraBase
   m_TagString: Untagged
@@ -295,6 +296,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6cd06053df11064899f7d2fa1185b23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &713749028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 713749025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 543054c15a64e924abf1d0b12ce1b6f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  follow: {fileID: 173950661}
+  smooth: 5
 --- !u!1 &720761591
 GameObject:
   m_ObjectHideFlags: 0
