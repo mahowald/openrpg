@@ -156,7 +156,7 @@ namespace Actor
             this.criticalEffects = criticalEffects;
             variables = new Dictionary<string, float>();
             UpdateSourceVariables();
-            System.Random rand = new System.Random();
+            rand = new System.Random();
         }
 
         private bool firstRoll = true;
