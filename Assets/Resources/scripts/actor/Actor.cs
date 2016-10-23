@@ -118,6 +118,7 @@ namespace Actor
             SetKeyboardMovement();
 	    }
 
+        // Set the destination based on keyboard movement
         private void SetKeyboardMovement()
         {
             if (movementController == MovementController.Player)
@@ -128,6 +129,11 @@ namespace Actor
                     Destination = GameController.Get3DMovementDir() + Position;
                 }
             }
+        }
+
+        public void AddEffect(Effect effect, float duration)
+        {
+            return;
         }
     }
 

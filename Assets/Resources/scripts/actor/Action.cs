@@ -121,7 +121,7 @@ namespace Actor
             criticalEffects = new Dictionary<Effect, Expression>();
         }
 
-        public IAction<T> Instantiate(Actor source, T target)
+        public virtual IAction<T> Instantiate(Actor source, T target)
         {
             return new CombatAction<T>(source, target, cooldown, effects, cost, successChance, criticalChance, criticalEffects);
         }
@@ -135,12 +135,12 @@ namespace Actor
 
     public class CombatAction<T> : Action<T>, IAction<T>
     {
-        private Expression cooldown;
-        private Dictionary<Effect, Expression> effects;
-        private Dictionary<string, Expression> cost;
-        private Expression successChance;
-        private Expression criticalChance;
-        private Dictionary<Effect, Expression> criticalEffects;
+        protected Expression cooldown;
+        protected Dictionary<Effect, Expression> effects;
+        protected Dictionary<string, Expression> cost;
+        protected Expression successChance;
+        protected Expression criticalChance;
+        protected Dictionary<Effect, Expression> criticalEffects;
         protected Dictionary<string, float> variables;
 
         private System.Random rand;
@@ -155,6 +155,7 @@ namespace Actor
             this.criticalChance = criticalChance;
             this.criticalEffects = criticalEffects;
             variables = new Dictionary<string, float>();
+            UpdateSourceVariables();
             System.Random rand = new System.Random();
         }
 
@@ -214,6 +215,99 @@ namespace Actor
             foreach(string attribute in cost.Keys)
             {
                 Source.attributes[attribute] -= cost[attribute].Evaluate(variables);
+            }
+        }
+    }
+
+    public class SingleTargetDamageActionPrototype : CombatActionPrototype<Actor>, IActionPrototype<Actor>
+    {
+        private Dictionary<string, Expression> damage;
+        [YamlMember(Alias ="damage")]
+        public Dictionary<string, Expression> Damage
+        {
+            get { return damage; }
+            set { damage = value; }
+        }
+        private Expression criticalBonus;
+        [YamlMember(Alias = "critical_multiplier")]
+        public Expression CriticalBonus
+        {
+            get { return criticalBonus; }
+            set { criticalBonus = value; }
+        }
+
+        public SingleTargetDamageActionPrototype() : base()
+        {
+            damage = new Dictionary<string, Expression>();
+        }
+
+        public override IAction<Actor> Instantiate(Actor source, Actor target)
+        {
+            return new SingleTargetDamageAction(source, target, damage, 
+                Cooldown, Effects, Cost, SuccessChance, CriticalChance, criticalBonus, CriticalEffects);
+        }
+
+    }
+
+    public class SingleTargetDamageAction : CombatAction<Actor>, IAction<Actor>
+    {
+        protected Dictionary<string, Expression> damage;
+        protected Expression criticalBonus;
+
+        public SingleTargetDamageAction(Actor source, Actor target, Dictionary<string, Expression> damage, Expression cooldown, 
+            Dictionary<Effect, Expression> effects, Dictionary<string, Expression> cost, Expression successChance, 
+            Expression criticalChance, Expression criticalBonus, Dictionary<Effect, Expression> criticalEffects) 
+            : base(source, target, cooldown, effects, cost, successChance, criticalChance, criticalEffects)
+        {
+            this.damage = damage;
+            this.criticalBonus = criticalBonus;
+            UpdateTargetVariables();
+        }
+
+        private void UpdateTargetVariables()
+        {
+            Attributes targetAtts = this.Target.attributes;
+            foreach (string key in targetAtts.attributes.Keys)
+            {
+                string newname = "target." + key;
+                float value = targetAtts[key];
+                variables.Add(newname, value);
+            }
+        }
+
+        public override void DoAction()
+        {
+            base.DoAction();
+            bool success = IsSuccess;
+            bool crit = IsCriticalSuccess;
+            if(success) // if the attack hits
+            {
+                float multiplier = 1f;
+                if (crit)
+                    multiplier = criticalBonus.Evaluate(variables);
+                foreach(string attribute in damage.Keys)
+                {
+                    Target.attributes[attribute] -= multiplier*damage[attribute].Evaluate(variables);
+                }
+                foreach(Effect effect in effects.Keys)
+                {
+                    Target.AddEffect(effect, effects[effect].Evaluate(variables));
+                }
+                if (crit)
+                {
+                    foreach(Effect effect in criticalEffects.Keys)
+                    {
+                        Target.AddEffect(effect, criticalEffects[effect].Evaluate(variables));
+                    }
+                }
+            }
+            else if(crit) // critical hits always do some damage, e.g., "grazed" or "glancing hit"
+            {
+                foreach (string attribute in damage.Keys)
+                {
+                    // TODO: Should we apply a multiplier for grazing hits?
+                    Target.attributes[attribute] -= damage[attribute].Evaluate(variables); 
+                }
             }
         }
 
