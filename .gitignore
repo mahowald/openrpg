@@ -39,3 +39,9 @@ ehthumbs.db
 # Blender #
 # ======= #
 [Bb]lender/
+
+# =============== #
+# Standard Assets #
+# =============== #
+[Aa]ssets/Standard Assets.meta
+[Aa]ssets/Standard Assets/

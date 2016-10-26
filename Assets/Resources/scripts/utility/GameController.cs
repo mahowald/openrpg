@@ -70,7 +70,6 @@ public class GameController : MonoBehaviour {
         Vector3 cameraRight = new Vector3(gameCamera.right.x, 0, gameCamera.right.z).normalized;
 
         return moveInX*cameraRight + moveInY*cameraForward;
-        // return moveInY*cameraForward;
     }
     
 
