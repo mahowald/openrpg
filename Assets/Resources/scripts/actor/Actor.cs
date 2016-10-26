@@ -91,6 +91,12 @@ namespace Actor
             if (movementController == MovementController.Player)
             {
                 Vector3 moveDir = GameController.Get3DMovementDir();
+                NavMeshHit hit;
+                bool validPosition = NavMesh.SamplePosition(transform.position + moveDir, out hit, 1f, NavMesh.AllAreas);
+                if (!validPosition)
+                    moveDir = Vector3.zero;
+                else
+                    moveDir = hit.position - transform.position;
                 if (Vector3.Magnitude(moveDir) > 0.1f)
                 {
                     Move(moveDir);
@@ -212,18 +218,21 @@ namespace Actor
         // --- UPDATING --- //
 	    // Update is called once per frame
 	    void Update () {
-            bool keyboardMovementSet = SetKeyboardMovement();
-            if(!keyboardMovementSet)
+            if(!paused)
             {
-                if (navAgent.remainingDistance > navAgent.stoppingDistance)
-                    Move(navAgent.desiredVelocity);
-                else
-                    Move(Vector3.zero);
-            }
+                bool keyboardMovementSet = SetKeyboardMovement();
+                if (!keyboardMovementSet)
+                {
+                    if (navAgent.remainingDistance > navAgent.stoppingDistance)
+                        Move(navAgent.desiredVelocity);
+                    else
+                        Move(Vector3.zero);
+                }
 
-            navAgent.updatePosition = false;
-            // navAgent.updateRotation = true;
-            navAgent.nextPosition = transform.position;
+                navAgent.updatePosition = false;
+                // navAgent.updateRotation = true;
+                navAgent.nextPosition = transform.position;
+            }
             
         }
 
