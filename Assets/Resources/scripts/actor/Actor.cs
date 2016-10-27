@@ -103,6 +103,7 @@ namespace Actor
                     Destination = GameController.Get3DMovementDir() + Position;
                     return true;
                 }
+                return false;
             }
             return false;
         }
@@ -161,6 +162,19 @@ namespace Actor
             }
         }
 
+        // Scale the velocity as we near the target, so that we stop smoothly
+        private float slowDist = 2f;
+        private float slowSpeed = 0.25f;
+        private float ScaledVelocity()
+        {
+            float scale = 1f;
+            float distance = Vector3.Magnitude(transform.position - this.Destination);
+            if (distance < slowDist)
+            {
+                scale = (distance / slowDist)*(1 - slowSpeed) + slowSpeed;
+            }
+            return scale;
+        }
 
         // --- PAUSING AND UNPAUSING --- //
         private Vector3 movingVelocity = Vector3.zero;
@@ -224,7 +238,7 @@ namespace Actor
                 if (!keyboardMovementSet)
                 {
                     if (navAgent.remainingDistance > navAgent.stoppingDistance)
-                        Move(navAgent.desiredVelocity);
+                        Move(ScaledVelocity()*navAgent.desiredVelocity/navAgent.speed);
                     else
                         Move(Vector3.zero);
                 }
