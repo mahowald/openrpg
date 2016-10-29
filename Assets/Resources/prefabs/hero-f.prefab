@@ -3493,7 +3493,8 @@ SkinnedMeshRenderer:
   - {fileID: 4000011885556136}
   - {fileID: 4000010893365320}
   - {fileID: 4000012678425600}
-  m_BlendShapeWeights: []
+  m_BlendShapeWeights:
+  - 75
   m_RootBone: {fileID: 4000012424624884}
   m_AABB:
     m_Center: {x: 0.008773245, y: 0.00000011920929, z: 0.9754427}
@@ -4965,8 +4966,15 @@ Cloth:
     collisionSphereDistance: 3.4028235e+38
   - maxDistance: 0
     collisionSphereDistance: 3.4028235e+38
-  m_CapsuleColliders: []
-  m_SphereColliders: []
+  m_CapsuleColliders:
+  - {fileID: 136000011499144672}
+  - {fileID: 136000013448387660}
+  - {fileID: 136000013585779214}
+  - {fileID: 136000013117626378}
+  - {fileID: 136000010979871422}
+  m_SphereColliders:
+  - first: {fileID: 135000012661128876}
+    second: {fileID: 0}
 --- !u!195 &195000013510951444
 NavMeshAgent:
   m_ObjectHideFlags: 1

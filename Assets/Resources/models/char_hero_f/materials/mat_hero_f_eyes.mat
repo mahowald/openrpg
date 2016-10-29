@@ -7,9 +7,9 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: mat_hero_f_eyes
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: _EMISSION
-  m_LightmapFlags: 1
+  m_Shader: {fileID: 4800000, guid: b5f9959f7b6042c4eac31c2b58eb6cc2, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
   m_CustomRenderQueue: -1
   stringTagMap: {}
   m_SavedProperties:
@@ -69,10 +69,19 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - first:
+        name: _SpecGlossMap
+      second:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - first:
         name: _BumpScale
       second: 1
+    - first:
+        name: _CullMode
+      second: 2
     - first:
         name: _Cutoff
       second: 0.5
@@ -81,6 +90,9 @@ Material:
       second: 1
     - first:
         name: _DstBlend
+      second: 0
+    - first:
+        name: _EmissionScaleUI
       second: 0
     - first:
         name: _GlossMapScale
@@ -104,7 +116,22 @@ Material:
         name: _Parallax
       second: 0.02
     - first:
+        name: _PlaneReflectionBumpClamp
+      second: 0.05
+    - first:
+        name: _PlaneReflectionBumpScale
+      second: 0.4
+    - first:
+        name: _SmoothnessInAlbedo
+      second: 0
+    - first:
         name: _SmoothnessTextureChannel
+      second: 0
+    - first:
+        name: _SmoothnessTweak1
+      second: 1
+    - first:
+        name: _SmoothnessTweak2
       second: 0
     - first:
         name: _SpecularHighlights
@@ -125,3 +152,12 @@ Material:
     - first:
         name: _EmissionColor
       second: {r: 0, g: 0, b: 0, a: 1}
+    - first:
+        name: _EmissionColorUI
+      second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _SpecColor
+      second: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    - first:
+        name: _SpecularMapColorTweak
+      second: {r: 1, g: 1, b: 1, a: 1}
