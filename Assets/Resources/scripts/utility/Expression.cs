@@ -34,15 +34,30 @@ public class Expression {
     
     public static List<string> SplitExpression(string input)
     {
-        string[] parts = Regex.Split(input, "(?=[)(*+/-])|(?<=[)(*+/-])");
+        List<string> operators = new List<string>(operatorPrecedence.Keys);
+        string[] rawParts = Regex.Split(input, "(?=[)(*+/-])|(?<=[)(*+/-])");
+
+        List<string> parts = new List<string>(rawParts);
+        parts.RemoveAll( s => s.Trim() == "");
+
         List<string> output = new List<string>();
-        foreach(string part in parts)
-        {
-            if(part == "")
+        var i = 0;
+
+        while(i < parts.Count)
+        { 
+            string part = parts[i];
+            part = part.Trim();
+            if (part == "-" && (i == 0 || operators.Contains(parts[i - 1])) ) // Subtraction versus a negative number
             {
-                continue;
+                output.Add("-1");
+                output.Add("*");
+                i++;
             }
-            output.Add(part.Trim());
+            else
+            {
+                output.Add(part);
+                i++;
+            }
         }
         return output;
     }

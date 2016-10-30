@@ -12,7 +12,7 @@ public class TestClass : MonoBehaviour {
 
 	void Start () {
         // TestEquationParser();
-        TestActionPrototype();
+        // TestActionPrototype();
 	}
 	
     void Update()
