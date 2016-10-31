@@ -78,7 +78,7 @@ public class GameController : MonoBehaviour {
     
     void ToggleViewMode()
     {
-        if(Input.GetButtonUp("ViewMode"))
+        if(Input.GetButtonUp("ViewMode") && !orthoOn)
         {
             if ( viewMode == ViewMode.Standard)
             {
@@ -92,6 +92,28 @@ public class GameController : MonoBehaviour {
                 Cursor.visible = true;
             }
         }
+    }
+
+    private bool orthoOn = false;
+    void SetOrthographicMode(bool orthographicMode)
+    {
+        orthoOn = orthographicMode;
+        if(orthoOn && viewMode == ViewMode.FreeLook)
+        {
+            viewMode = ViewMode.Standard;
+            EventManager.TriggerEvent("ViewMode: Standard");
+            Cursor.visible = true;
+        }
+    }
+
+    // Subscribe/Unsubscribe to our events
+    public void OnEnable()
+    {
+        EventManager.StartListening("Orthographic Mode", SetOrthographicMode);
+    }
+    public void OnDisable()
+    {
+        EventManager.StopListening("Orthographic Mode", SetOrthographicMode);
     }
 
 

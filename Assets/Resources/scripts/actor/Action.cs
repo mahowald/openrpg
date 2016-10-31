@@ -52,7 +52,7 @@ namespace Actor
         IAction<T> Instantiate(Actor source, T target); // Create an actual Action from the prototype
     }
 
-    public class CombatActionPrototype<T> : IActionPrototype<T>
+    public class CombatActionPrototype<T> : Utility.SerializableElement, IActionPrototype<T>
     {
 
         // The recharge time between uses.
@@ -313,7 +313,7 @@ namespace Actor
 
     }
 
-    public class ActorTransactionPrototype : IActionPrototype<Actor>
+    public class ActorTransactionPrototype : Utility.SerializableElement, IActionPrototype<Actor>
     {
         private Dictionary<string, Expression> targetDiff;
         private Dictionary<string, Expression> sourceDiff;

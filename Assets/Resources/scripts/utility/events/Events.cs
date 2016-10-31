@@ -17,5 +17,10 @@ namespace Events
         public FloatEvent() : base() { }
     }
 
+    public class BoolEvent : UnityEvent<bool>
+    {
+        public BoolEvent() : base() { }
+    }
+
 
 }

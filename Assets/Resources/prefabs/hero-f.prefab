@@ -3494,7 +3494,7 @@ SkinnedMeshRenderer:
   - {fileID: 4000010893365320}
   - {fileID: 4000012678425600}
   m_BlendShapeWeights:
-  - 75
+  - 100
   m_RootBone: {fileID: 4000012424624884}
   m_AABB:
     m_Center: {x: 0.008773245, y: 0.00000011920929, z: 0.9754427}
@@ -4243,7 +4243,7 @@ Cloth:
   m_GameObject: {fileID: 1000012167757038}
   m_Enabled: 1
   m_StretchingStiffness: 1
-  m_BendingStiffness: 0
+  m_BendingStiffness: 0.2
   m_UseTethers: 1
   m_UseGravity: 1
   m_Damping: 0
