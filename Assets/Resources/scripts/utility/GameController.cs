@@ -5,10 +5,13 @@ using System.Collections.Generic;
 // Game controller class
 public class GameController : MonoBehaviour {
 
+    public enum ViewMode { Standard, FreeLook }; 
+    private static ViewMode viewMode = ViewMode.Standard;
+
     private static GameController gameController;
 
     private static Transform gameCamera;
-
+    
     public static GameController instance
     {
         get
@@ -27,6 +30,7 @@ public class GameController : MonoBehaviour {
 	void Update () {
         Do3DMouseClick();
         TogglePause();
+        ToggleViewMode();
 	}
 
     // Handle requests to pause/unpause the game
@@ -72,6 +76,23 @@ public class GameController : MonoBehaviour {
         return moveInX*cameraRight + moveInY*cameraForward;
     }
     
+    void ToggleViewMode()
+    {
+        if(Input.GetButtonUp("ViewMode"))
+        {
+            if ( viewMode == ViewMode.Standard)
+            {
+                viewMode = ViewMode.FreeLook;
+                EventManager.TriggerEvent("ViewMode: FreeLook");
+                Cursor.visible = false;
+            } else
+            {
+                viewMode = ViewMode.Standard;
+                EventManager.TriggerEvent("ViewMode: Standard");
+                Cursor.visible = true;
+            }
+        }
+    }
 
 
 }

@@ -336,8 +336,8 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 713749026}
-  - 114: {fileID: 713749027}
   - 114: {fileID: 713749028}
+  - 114: {fileID: 713749027}
   m_Layer: 0
   m_Name: CameraBase
   m_TagString: Untagged
@@ -367,10 +367,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 713749025}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6cd06053df11064899f7d2fa1185b23, type: 3}
+  m_Script: {fileID: 11500000, guid: cdb19572cc4585742beb8e4168146cf4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 50
+  mouseSpeed: 150
 --- !u!114 &713749028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -526,8 +527,9 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 1040304616}
+  - 114: {fileID: 1040304617}
   m_Layer: 0
-  m_Name: CameraPivot
+  m_Name: CameraAxis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -549,6 +551,18 @@ Transform:
   - {fileID: 738247303}
   m_Father: {fileID: 713749026}
   m_RootOrder: 0
+--- !u!114 &1040304617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1040304615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b28709f0817b9504d88510757a5108cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mouseSpeed: 150
 --- !u!1 &1207980663
 GameObject:
   m_ObjectHideFlags: 0
