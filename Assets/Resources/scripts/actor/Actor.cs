@@ -204,13 +204,13 @@ namespace Actor
         {
             EventManager.StartListening("Pause", Pause);
             EventManager.StartListening("Unpause", Unpause);
-            EventManager.StartListening("MouseClickLocation3D", SetClickDestination);
+            EventManager.StartListening<Vector3>("MouseClickLocation3D", SetClickDestination);
         }
         public void OnDisable()
         {
             EventManager.StopListening("Pause", Pause);
             EventManager.StopListening("Unpause", Unpause);
-            EventManager.StopListening("MouseClickLocation3D", SetClickDestination);
+            EventManager.StopListening<Vector3>("MouseClickLocation3D", SetClickDestination);
         }
 
 

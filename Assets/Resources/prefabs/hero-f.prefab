@@ -4255,7 +4255,7 @@ Cloth:
   m_CollisionMassScale: 0
   m_UseContinuousCollision: 1
   m_UseVirtualParticles: 1
-  m_SolverFrequency: 120
+  m_SolverFrequency: 240
   m_SleepThreshold: 0.1
   m_Coefficients:
   - maxDistance: 0
@@ -4972,6 +4972,10 @@ Cloth:
   - {fileID: 136000013585779214}
   - {fileID: 136000013117626378}
   - {fileID: 136000010979871422}
+  - {fileID: 136000013470543426}
+  - {fileID: 136000013448952874}
+  - {fileID: 136000010872520466}
+  - {fileID: 136000011180772832}
   m_SphereColliders:
   - first: {fileID: 135000012661128876}
     second: {fileID: 0}

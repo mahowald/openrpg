@@ -9,12 +9,9 @@ using Tuples;
 public class EventManager : MonoBehaviour
 {
     private Dictionary<string, UnityEvent> eventDictionary;
-    private Dictionary<string, Events.Vector3Event> v3EventDictionary;
-    private Dictionary<string, Events.BoolEvent> boolEventDictionary;
-    private static Queue<UnityEvent> eventQueue;
-    private static Queue<Tuple<Events.Vector3Event, Vector3>> v3EventQueue;
-    private static Queue<Tuple<Events.BoolEvent, bool>> boolEventQueue;
-    
+    private Queue<UnityEvent> eventQueue;
+    private Dictionary<Type, Dictionary<string, Events.IOneArgEvent>> oneArgEventDictionary;
+    private Queue<Tuple<Type, Events.IOneArgEvent, object>> oneArgEventQueue;
 
     private const int EventBatchSize = 500;
 
@@ -46,21 +43,17 @@ public class EventManager : MonoBehaviour
     {
         if (eventDictionary == null)
             eventDictionary = new Dictionary<string, UnityEvent>();
-        if ( v3EventDictionary == null)
-            v3EventDictionary = new Dictionary<string, Events.Vector3Event>();
-        if (boolEventDictionary == null)
-            boolEventDictionary = new Dictionary<string, Events.BoolEvent>();
         if ( eventQueue == null)
             eventQueue = new Queue<UnityEvent>();
-        if ( v3EventQueue == null)
-            v3EventQueue = new Queue<Tuple<Events.Vector3Event, Vector3>>();
-        if (boolEventQueue == null)
-            boolEventQueue = new Queue<Tuple<Events.BoolEvent, bool>>();
+        if (oneArgEventDictionary == null)
+            oneArgEventDictionary = new Dictionary<Type, Dictionary<string, Events.IOneArgEvent>>();
+        if (oneArgEventQueue == null)
+            oneArgEventQueue = new Queue<Tuple<Type, Events.IOneArgEvent, object>>();
+        
     }
     
     void Update()
     {
-        //TODO: This is getting ridiculous.
         int eventsProcessed = 0;
         while( eventQueue.Count > 0 && eventsProcessed < EventBatchSize )
         {
@@ -68,16 +61,10 @@ public class EventManager : MonoBehaviour
             thisEvent.Invoke();
             eventsProcessed += 1;
         }
-        while ( v3EventQueue.Count > 0 && eventsProcessed < EventBatchSize )
+        while(oneArgEventQueue.Count > 0 && eventsProcessed < EventBatchSize)
         {
-            Tuple<Events.Vector3Event, Vector3> tuple = v3EventQueue.Dequeue();
-            tuple.Item1.Invoke(tuple.Item2);
-            eventsProcessed += 1;
-        }
-        while ( boolEventQueue.Count > 0 && eventsProcessed < EventBatchSize)
-        {
-            Tuple<Events.BoolEvent, bool> tuple = boolEventQueue.Dequeue();
-            tuple.Item1.Invoke(tuple.Item2);
+            Tuple<Type, Events.IOneArgEvent, object> tuple = oneArgEventQueue.Dequeue();
+            tuple.Item2.Invoke(tuple.Item3);
             eventsProcessed += 1;
         }
     }
@@ -96,56 +83,59 @@ public class EventManager : MonoBehaviour
             instance.eventDictionary.Add(eventName, thisEvent);
         }
     }
-
-
-    public static void StartListening(string eventName, UnityAction<Vector3> listener)
+    
+    public static void StartListening<T>(string eventName, UnityAction<T> listener)
     {
-        Events.Vector3Event thisEvent = null;
-        if (instance.v3EventDictionary.TryGetValue(eventName, out thisEvent))
+        Events.IOneArgEvent thisEvent = null;
+        Type mytype = typeof(T);
+        if (instance.oneArgEventDictionary.ContainsKey(mytype))
         {
-            thisEvent.AddListener(listener);
+            if (instance.oneArgEventDictionary[mytype].TryGetValue(eventName, out thisEvent))
+            {
+                Events.GenericEvent<T> myEvent = (Events.GenericEvent<T>)(thisEvent);
+                myEvent.AddListener(listener);
+            }
+            else
+            {
+                Events.GenericEvent<T> myEvent = new Events.GenericEvent<T>();
+                myEvent.AddListener(listener);
+                instance.oneArgEventDictionary[mytype].Add(eventName, myEvent);
+            }
         }
         else
         {
-            thisEvent = new Events.Vector3Event();
-            thisEvent.AddListener(listener);
-            instance.v3EventDictionary.Add(eventName, thisEvent);
+            instance.oneArgEventDictionary.Add(mytype, new Dictionary<string, Events.IOneArgEvent>());
+            Events.GenericEvent<T> myEvent = new Events.GenericEvent<T>();
+            myEvent.AddListener(listener);
+            instance.oneArgEventDictionary[mytype].Add(eventName, myEvent);
         }
     }
 
-
-    public static void StartListening(string eventName, UnityAction<bool> listener)
-    {
-        Events.BoolEvent thisEvent = null;
-        if (instance.boolEventDictionary.TryGetValue(eventName, out thisEvent))
-        {
-            thisEvent.AddListener(listener);
-        }
-        else
-        {
-            thisEvent = new Events.BoolEvent();
-            thisEvent.AddListener(listener);
-            instance.boolEventDictionary.Add(eventName, thisEvent);
-        }
-    }
-
-    public static void StopListening(string eventName, UnityAction<Vector3> listener)
+    public static void StopListening<T>(string eventName, UnityAction<T> listener)
     {
         if (eventManager == null) return;
-        Events.Vector3Event thisEvent = null;
-        if (instance.v3EventDictionary.TryGetValue(eventName, out thisEvent))
+        Events.IOneArgEvent thisEvent = null;
+        Type mytype = typeof(T);
+        if (instance.oneArgEventDictionary.ContainsKey(mytype))
         {
-            thisEvent.RemoveListener(listener);
+            if(instance.oneArgEventDictionary[mytype].TryGetValue(eventName, out thisEvent))
+            {
+                thisEvent.RemoveListener(listener);
+            }
         }
     }
 
-    public static void StopListening(string eventName, UnityAction<bool> listener)
+    public static void TriggerEvent<T>(string eventName, T argument)
     {
-        if (eventManager == null) return;
-        Events.BoolEvent thisEvent = null;
-        if (instance.boolEventDictionary.TryGetValue(eventName, out thisEvent))
+        Events.IOneArgEvent thisEvent = null;
+        Type mytype = typeof(T);
+        if(instance.oneArgEventDictionary.ContainsKey(mytype))
         {
-            thisEvent.RemoveListener(listener);
+            if(instance.oneArgEventDictionary[mytype].TryGetValue(eventName, out thisEvent))
+            {
+                // thisEvent.Invoke(argument);
+                instance.oneArgEventQueue.Enqueue(new Tuple<Type, Events.IOneArgEvent, object>(mytype, thisEvent, argument));
+            }
         }
     }
 
@@ -158,34 +148,13 @@ public class EventManager : MonoBehaviour
             thisEvent.RemoveListener(listener);
         }
     }
-
-    // Events that don't take any variables and are triggered by name
+    
     public static void TriggerEvent(string eventName)
     {
         UnityEvent thisEvent = null;
         if (instance.eventDictionary.TryGetValue(eventName, out thisEvent))
         {
-            eventQueue.Enqueue(thisEvent);
-        }
-    }
-
-    // Events that take a Vector3 argument and are triggered by name
-    public static void TriggerEvent(string eventName, Vector3 argument)
-    {
-        Events.Vector3Event thisEvent = null;
-        if (instance.v3EventDictionary.TryGetValue(eventName, out thisEvent))
-        {
-            v3EventQueue.Enqueue(new Tuple<Events.Vector3Event, Vector3>(thisEvent, argument));
-        }
-    }
-
-    // Events that take a Vector3 argument and are triggered by name
-    public static void TriggerEvent(string eventName, bool argument)
-    {
-        Events.BoolEvent thisEvent = null;
-        if (instance.boolEventDictionary.TryGetValue(eventName, out thisEvent))
-        {
-            boolEventQueue.Enqueue(new Tuple<Events.BoolEvent, bool>(thisEvent, argument));
+            instance.eventQueue.Enqueue(thisEvent);
         }
     }
 }

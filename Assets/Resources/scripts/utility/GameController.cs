@@ -60,7 +60,7 @@ public class GameController : MonoBehaviour {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit))
             {
-                EventManager.TriggerEvent("MouseClickLocation3D", hit.point);
+                EventManager.TriggerEvent<Vector3>("MouseClickLocation3D", hit.point);
             }
         }
     }
@@ -109,11 +109,11 @@ public class GameController : MonoBehaviour {
     // Subscribe/Unsubscribe to our events
     public void OnEnable()
     {
-        EventManager.StartListening("Orthographic Mode", SetOrthographicMode);
+        EventManager.StartListening<bool>("Orthographic Mode", SetOrthographicMode);
     }
     public void OnDisable()
     {
-        EventManager.StopListening("Orthographic Mode", SetOrthographicMode);
+        EventManager.StopListening<bool>("Orthographic Mode", SetOrthographicMode);
     }
 
 

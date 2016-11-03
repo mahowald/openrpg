@@ -19,11 +19,11 @@ public class ClickToMove : MonoBehaviour
 
     public void OnEnable()
     {
-        EventManager.StartListening("MouseClickLocation3D", SetDestination);
+        EventManager.StartListening<Vector3>("MouseClickLocation3D", SetDestination);
     }
     public void OnDisable()
     {
-        EventManager.StopListening("MouseClickLocation3D", SetDestination);
+        EventManager.StopListening<Vector3>("MouseClickLocation3D", SetDestination);
     }
 
     public void SetDestination(Vector3 destination)

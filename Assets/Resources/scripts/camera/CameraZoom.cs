@@ -50,7 +50,7 @@ namespace CameraUtilities
                 if (cameraDistance <= 0f)
                 {
                     BlendToMatrix(perspective, 0.5f);
-                    EventManager.TriggerEvent("Orthographic Mode", false);
+                    EventManager.TriggerEvent<bool>("Orthographic Mode", false);
                 }
                 cameraDistance += scroll;
             }
@@ -60,7 +60,7 @@ namespace CameraUtilities
                 if (cameraDistance <= 0f)
                 {
                     BlendToMatrix(ortho, 0.5f);
-                    EventManager.TriggerEvent("Orthographic Mode", true);
+                    EventManager.TriggerEvent<bool>("Orthographic Mode", true);
                 }
             }
 
