@@ -34,7 +34,6 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 4000010023304708}
-  - 114: {fileID: 114000010854871078}
   - 114: {fileID: 114000012517521304}
   m_Layer: 0
   m_Name: CameraBase
@@ -127,10 +126,10 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000012533615544}
-  m_LocalRotation: {x: 0.13052616, y: -0, z: -0, w: 0.9914449}
-  m_LocalPosition: {x: 0, y: 0.70000005, z: -2.5}
+  m_LocalRotation: {x: 0.38268343, y: -0, z: -0, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: 3.7, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 4000013916238146}
   m_RootOrder: 0
@@ -211,18 +210,6 @@ Behaviour:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000012533615544}
   m_Enabled: 1
---- !u!114 &114000010854871078
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000011708077124}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 543054c15a64e924abf1d0b12ce1b6f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  follow: {fileID: 0}
 --- !u!114 &114000012402607520
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -248,6 +235,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 50
   mouseSpeed: 150
+  follow: {fileID: 0}
 --- !u!114 &114000013256903762
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -261,10 +249,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zoomIn: {fileID: 4000013148525088}
   zoomOut: {fileID: 4000013636712126}
-  fov: 60
-  near: 0.3
-  far: 1000
-  orthographicSize: 50
 --- !u!124 &124000010613627908
 Behaviour:
   m_ObjectHideFlags: 1

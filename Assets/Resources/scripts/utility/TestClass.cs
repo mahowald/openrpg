@@ -8,7 +8,7 @@ using System.IO;
 
 public class TestClass : MonoBehaviour {
 
-    public Actor.Actor actor1;
+    public ActorSystem.Actor actor1;
 
 	void Start () {
         // TestEquationParser();
@@ -62,14 +62,14 @@ public class TestClass : MonoBehaviour {
         Expression myExp = new Expression("source.x + 5");
         Dictionary<string, Expression> myExps = new Dictionary<string, Expression> { { "health", myExp } };
         Dictionary<string, float> myVariables = new Dictionary<string, float> { { "source.health", 10f } };
-        Actor.ActorTransactionPrototype aproto = new Actor.ActorTransactionPrototype(myExps, new Dictionary<string, Expression>());
+        ActorSystem.ActorTransactionPrototype aproto = new ActorSystem.ActorTransactionPrototype(myExps, new Dictionary<string, Expression>());
 
         //Serializer serializer = new Serializer();
         //StringBuilder stringBuilder = new StringBuilder();
         //StringWriter stringWriter = new StringWriter(stringBuilder);
         //serializer.Serialize(stringWriter, myExp);
 
-        Actor.ProbabalisticActorTransactionPrototype aproto2 = deserializer.Deserialize<Actor.ProbabalisticActorTransactionPrototype>(new StringReader(Document));
+        ActorSystem.ProbabalisticActorTransactionPrototype aproto2 = deserializer.Deserialize<ActorSystem.ProbabalisticActorTransactionPrototype>(new StringReader(Document));
         foreach(Expression exp in aproto2.TargetDiff.Values)
         {
             Debug.Log(exp.Evaluate(myVariables)); // should produce 8
@@ -78,10 +78,10 @@ public class TestClass : MonoBehaviour {
         // Debug.Log(myDict["target_diff"]["health"]);
         // Debug.Log(stringBuilder);
 
-        actor1.attributes = new Actor.Attributes(new Dictionary<string, float>());
+        actor1.attributes = new ActorSystem.Attributes(new Dictionary<string, float>());
         actor1.attributes.attributes.Add("health", 10f);
         Debug.Log(actor1.attributes["health"]); // should be 10
-        Actor.IAction<Actor.Actor> myAction = aproto2.Instantiate(actor1, actor1);
+        ActorSystem.IAction<ActorSystem.Actor> myAction = aproto2.Instantiate(actor1, actor1);
         myAction.DoAction();
         Debug.Log(actor1.attributes["health"]); // should be 13 or 10
     }

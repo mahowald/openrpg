@@ -5,7 +5,7 @@ using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 using System;
 
-namespace Actor
+namespace ActorSystem
 {
     // Actions are performed by actors
     // All actions must have a source and a target

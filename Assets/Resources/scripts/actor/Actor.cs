@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Actor
+namespace ActorSystem
 {
     // Who is controlling this character? (The computer, or the player)
     public enum MovementController { Computer, Player};
@@ -205,14 +205,31 @@ namespace Actor
             EventManager.StartListening("Pause", Pause);
             EventManager.StartListening("Unpause", Unpause);
             EventManager.StartListening<Vector3>("MouseClickLocation3D", SetClickDestination);
+            EventManager.StartListening<Actor>("ActorClicked", ActorClicked);
         }
         public void OnDisable()
         {
             EventManager.StopListening("Pause", Pause);
             EventManager.StopListening("Unpause", Unpause);
             EventManager.StopListening<Vector3>("MouseClickLocation3D", SetClickDestination);
+            EventManager.StopListening<Actor>("ActorClicked", ActorClicked);
+        }
+        // Events that we trigger
+        public void OnMouseUpAsButton()
+        {
+            if (GameController.VMode != GameController.ViewMode.FreeLook)
+                EventManager.TriggerEvent<Actor>("ActorClicked", this);
         }
 
+        // -- SELECT/DESELECT -- //
+        public void ActorClicked(Actor a)
+        {
+            //TODO: allies versus enemies
+            if (this == a)
+                movementController = MovementController.Player;
+            else
+                movementController = MovementController.Computer;
+        }
 
         // --- INITIALIZATION --- //
         // Called after instantiation, before Start 

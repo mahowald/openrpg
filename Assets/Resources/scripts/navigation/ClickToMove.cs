@@ -5,7 +5,7 @@ using System.Collections;
 public class ClickToMove : MonoBehaviour
 {
 
-    public Actor.Actor actor;
+    public ActorSystem.Actor actor;
 
     // Use this for initialization
     void Start()

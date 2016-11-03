@@ -7,6 +7,10 @@ public class GameController : MonoBehaviour {
 
     public enum ViewMode { Standard, FreeLook }; 
     private static ViewMode viewMode = ViewMode.Standard;
+    public static ViewMode VMode
+    {
+        get { return viewMode; }
+    }
 
     private static GameController gameController;
 
@@ -54,13 +58,14 @@ public class GameController : MonoBehaviour {
 
     void Do3DMouseClick()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && viewMode == ViewMode.Standard)
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit))
             {
-                EventManager.TriggerEvent<Vector3>("MouseClickLocation3D", hit.point);
+                if(hit.transform.GetComponent<ActorSystem.Actor>() == null) // check that we didn't click on an actor
+                    EventManager.TriggerEvent<Vector3>("MouseClickLocation3D", hit.point);
             }
         }
     }
