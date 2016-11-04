@@ -62,6 +62,13 @@ namespace ActorSystem
                 this.transform.forward = value;
             }
         }
+
+        // The radius of the actor's nav mesh agent
+        public float Radius
+        {
+            get { return this.navAgent.radius; }
+        }
+
         // --- GAME LOGIC --- //
 
         public void AddEffect(Effect effect, float duration)
@@ -84,7 +91,7 @@ namespace ActorSystem
             if (movementController == MovementController.Player)
                 Destination = targetDestination;
         }
-
+        
         // Set the destination based on keyboard movement
         private bool SetKeyboardMovement()
         {
@@ -93,6 +100,17 @@ namespace ActorSystem
                 Vector3 moveDir = GameController.Get3DMovementDir();
                 NavMeshHit hit;
                 bool validPosition = NavMesh.SamplePosition(transform.position + moveDir, out hit, 1f, NavMesh.AllAreas);
+                foreach(Actor a in GameController.Actors)
+                {
+                    if (a == this)
+                        continue;
+                    float distance = Vector3.Magnitude(a.Position - hit.position);
+                    if (distance < Radius + a.Radius)
+                    {
+                        validPosition = false;
+                        break;
+                    }
+                }
                 if (!validPosition)
                     moveDir = Vector3.zero;
                 else

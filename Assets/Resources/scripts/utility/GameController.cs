@@ -7,6 +7,21 @@ public class GameController : MonoBehaviour {
 
     public enum ViewMode { Standard, FreeLook }; 
     private static ViewMode viewMode = ViewMode.Standard;
+    private static List<ActorSystem.Actor> actors;
+
+    public static void AddActor(ActorSystem.Actor a)
+    {
+        if (actors.Contains(a))
+            return;
+
+        actors.Add(a);
+    }
+
+    public static List<ActorSystem.Actor> Actors
+    {
+        get { return actors; }
+    }
+
     public static ViewMode VMode
     {
         get { return viewMode; }
@@ -28,6 +43,7 @@ public class GameController : MonoBehaviour {
 	void Start () {
         gameController = this;
         gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Transform>();
+        actors = new List<ActorSystem.Actor>(GameObject.FindObjectsOfType<ActorSystem.Actor>());
 	}
 	
 	// Update is called once per frame
