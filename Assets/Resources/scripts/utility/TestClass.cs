@@ -86,6 +86,23 @@ public class TestClass : MonoBehaviour {
         Debug.Log(actor1.attributes["health"]); // should be 13 or 10
     }
 
+    /**
+    public void ButtonPressed()
+    {
+        Debug.Log("Button Pressed.");
+    }
+
+    // Subscribe/Unsubscribe to our events
+    public void OnEnable()
+    {
+        EventManager.StartListening("ButtonPressed", ButtonPressed);
+    }
+    public void OnDisable()
+    {
+        EventManager.StopListening("ButtonPressed", ButtonPressed);
+    }
+    **/
+
     private const string Document = @"---
         target_diff:
             health: 2*source.health/5 - 1

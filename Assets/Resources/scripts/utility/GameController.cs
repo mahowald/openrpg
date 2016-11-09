@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 // Game controller class
 public class GameController : MonoBehaviour {
@@ -72,9 +73,10 @@ public class GameController : MonoBehaviour {
         }
     }
 
+    // Determine where the mouse clicked
     void Do3DMouseClick()
     {
-        if (Input.GetMouseButtonDown(0) && viewMode == ViewMode.Standard)
+        if (Input.GetMouseButtonDown(0) && viewMode == ViewMode.Standard && !EventSystem.current.IsPointerOverGameObject())
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -86,6 +88,7 @@ public class GameController : MonoBehaviour {
         }
     }
     
+    // Convert the movement input into a 3-vector direction
     public static Vector3 Get3DMovementDir()
     {
         float moveInX = Input.GetAxis("Horizontal");
@@ -136,6 +139,5 @@ public class GameController : MonoBehaviour {
     {
         EventManager.StopListening<bool>("Orthographic Mode", SetOrthographicMode);
     }
-
 
 }
