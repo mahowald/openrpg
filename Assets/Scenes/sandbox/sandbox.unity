@@ -355,15 +355,14 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 442027659}
-  - 114: {fileID: 442027660}
-  - 114: {fileID: 442027661}
+  - 114: {fileID: 442027662}
   m_Layer: 0
   m_Name: ProjectorBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &442027659
 Transform:
   m_ObjectHideFlags: 0
@@ -378,7 +377,7 @@ Transform:
   - {fileID: 1426653074}
   m_Father: {fileID: 0}
   m_RootOrder: 10
---- !u!114 &442027660
+--- !u!114 &442027662
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -386,21 +385,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 442027658}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 543054c15a64e924abf1d0b12ce1b6f5, type: 3}
+  m_Script: {fileID: 11500000, guid: eadccaf2f5bb43d41b3ab89e59ae5712, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  projectorTop: {fileID: 1426653073}
   follow: {fileID: 2014492969}
---- !u!114 &442027661
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 442027658}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2e62b84a0983b84b8b199808c783a6c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &720761591
 GameObject:
   m_ObjectHideFlags: 0
@@ -985,7 +974,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1426653074
 Transform:
   m_ObjectHideFlags: 0
