@@ -340,6 +340,7 @@ GameObject:
   - 54: {fileID: 54000011836905382}
   - 195: {fileID: 195000013510951444}
   - 114: {fileID: 114000014022433954}
+  - 114: {fileID: 114000014155754386}
   m_Layer: 8
   m_Name: hero-f
   m_TagString: Untagged
@@ -2714,6 +2715,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementController: 1
+--- !u!114 &114000014155754386
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000010691851240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a20863f3d452f744d88d7a2967463709, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightPrototype: {fileID: 2100000, guid: d19cbb1cd57553e41bd42b2a99eb4c01, type: 2}
 --- !u!135 &135000012661128876
 SphereCollider:
   m_ObjectHideFlags: 1

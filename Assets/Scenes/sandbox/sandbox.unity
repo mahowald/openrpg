@@ -90,6 +90,23 @@ NavMeshSettings:
     cellSize: 0.16666667
     manualCellSize: 0
   m_NavMeshData: {fileID: 23800000, guid: 1d0bd0240122d134d82701509e5c8d84, type: 2}
+--- !u!1 &34488982 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1000010272435062, guid: 99e06a4866a72044ab02f72324facc0a,
+    type: 2}
+  m_PrefabInternal: {fileID: 203199587}
+--- !u!114 &34488983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 34488982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a20863f3d452f744d88d7a2967463709, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightPrototype: {fileID: 2100000, guid: d19cbb1cd57553e41bd42b2a99eb4c01, type: 2}
 --- !u!1001 &82833807
 Prefab:
   m_ObjectHideFlags: 0
@@ -546,7 +563,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -581,7 +598,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: ButtonPressed
+          m_StringArgument: AbilityButtonPressed
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,

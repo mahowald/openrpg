@@ -50,12 +50,12 @@ public class ProjectorBase : MonoBehaviour {
     // Subscribe/Unsubscribe to our events
     public void OnEnable()
     {
-        EventManager.StartListening("ButtonPressed", SetProjector);
+        EventManager.StartListening("AbilityButtonPressed", SetProjector);
         EventManager.StartListening<ActorSystem.Actor>("ActorClicked", SetFollowActor);
     }
     public void OnDisable()
     {
-        EventManager.StopListening("ButtonPressed", SetProjector);
+        EventManager.StopListening("AbilityButtonPressed", SetProjector);
         EventManager.StopListening<ActorSystem.Actor>("ActorClicked", SetFollowActor);
     }
 
