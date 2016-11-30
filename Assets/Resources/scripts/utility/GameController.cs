@@ -6,6 +6,19 @@ using UnityEngine.EventSystems;
 // Game controller class
 public class GameController : MonoBehaviour {
 
+    private static bool vrEnabled = false;
+    private static Transform standardCameraRig;
+    private static Transform vrCameraRig;
+    public static bool VREnabled
+    {
+        set {
+            vrEnabled = value;
+            vrCameraRig.gameObject.SetActive(vrEnabled);
+            standardCameraRig.gameObject.SetActive(!vrEnabled);
+        }
+        get { return vrEnabled; }
+    }
+
     public enum ViewMode { Standard, FreeLook }; 
     private static ViewMode viewMode = ViewMode.Standard;
     private static List<ActorSystem.Actor> actors;
@@ -40,11 +53,24 @@ public class GameController : MonoBehaviour {
         }
     }
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start() {
         gameController = this;
-        gameCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Transform>();
+        vrCameraRig = GameObject.FindGameObjectWithTag("VRCamera").transform;
+        standardCameraRig = GameObject.FindGameObjectWithTag("StandardCamera").transform;
+        if (VREnabled)
+        {
+            standardCameraRig.gameObject.SetActive(false);
+            gameCamera = vrCameraRig.GetComponentInChildren<Camera>().transform;
+        }
+        else
+        {
+            vrCameraRig.gameObject.SetActive(false);
+            gameCamera = standardCameraRig.GetComponentInChildren<Camera>().transform;
+        }
         actors = new List<ActorSystem.Actor>(GameObject.FindObjectsOfType<ActorSystem.Actor>());
+
+
 	}
 	
 	// Update is called once per frame

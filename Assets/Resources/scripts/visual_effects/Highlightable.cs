@@ -2,46 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Standalone class to allow for object highlighting.
+/// Note: this is built in to the Actor class. 
+/// </summary>
 public class Highlightable : MonoBehaviour {
 
-    public Material highlightPrototype;
-
-    private Dictionary<Renderer, Material> highlightMaterials;
-    private Dictionary<Renderer, Material> initialMaterials;
+    private ActorSystem.Highlighter highlighter;
 
 	// Use this for initialization
-	void Start () {
-
-        initialMaterials = new Dictionary<Renderer, Material>();
-        highlightMaterials = new Dictionary<Renderer, Material>();
-        Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
-        foreach(Renderer rend in renderers)
-        {
-            Material mat = rend.sharedMaterial;
-            initialMaterials.Add(rend, mat);
-            // Material hmat = Material.Instantiate(highlightPrototype);
-            // hmat.CopyPropertiesFromMaterial(mat);
-            // copy over properties from material
-            Material hmat = Material.Instantiate(highlightPrototype);
-            if (mat.IsKeywordEnabled("_DETAIL_MULX2"))
-                hmat.EnableKeyword("_DETAIL_MASK");
-
-            List<string> textures = new List<string>() { "_MainTex", "_Colormask", "_DetailMask" };
-            List<string> colors = new List<string>() { "_PriColor", "_SecColor", "_TerColor", "_DetailColor" };
-
-            foreach(string text in textures)
-            {
-                if (mat.HasProperty(text))
-                    hmat.SetTexture(text, mat.GetTexture(text));
-            }
-            foreach(string col in colors)
-            {
-                if (mat.HasProperty(col))
-                    hmat.SetColor(col, mat.GetColor(col));
-            }
-            
-            highlightMaterials.Add(rend, hmat);
-        }
+	void Start ()
+    {
+        highlighter = new ActorSystem.Highlighter(this.gameObject);
 	}
 	
 	// Update is called once per frame
@@ -55,25 +27,7 @@ public class Highlightable : MonoBehaviour {
     bool highlighted = false;
     bool Highlighted
     {
-        get { return highlighted; }
-        set {
-            highlighted = value;
-            SetHighlighted(value);
-        }
-    }
-
-    void SetHighlighted(bool highlighted)
-    {
-        foreach(Renderer rend in initialMaterials.Keys)
-        {
-            if(highlighted)
-            {
-                rend.material = highlightMaterials[rend];
-            }
-            else
-            {
-                rend.material = initialMaterials[rend];
-            }
-        }
+        get { return highlighter.Highlighted; }
+        set { highlighter.Highlighted = value; }
     }
 }

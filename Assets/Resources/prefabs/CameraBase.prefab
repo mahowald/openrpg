@@ -37,7 +37,7 @@ GameObject:
   - 114: {fileID: 114000012517521304}
   m_Layer: 0
   m_Name: CameraBase
-  m_TagString: Untagged
+  m_TagString: StandardCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -190,7 +190,7 @@ Camera:
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
-  m_TargetEye: 3
+  m_TargetEye: 0
   m_HDR: 0
   m_OcclusionCulling: 1
   m_StereoConvergence: 10

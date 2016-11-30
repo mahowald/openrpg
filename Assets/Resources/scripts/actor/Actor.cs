@@ -249,6 +249,21 @@ namespace ActorSystem
                 movementController = MovementController.Computer;
         }
 
+        // --- VISUAL EFFECTS --- //
+        private Highlighter highlighter;
+        
+        public bool Highlighted
+        {
+            set
+            {
+                highlighter.Highlighted = value;
+            }
+            get
+            {
+                return highlighter.Highlighted;
+            }
+        }
+
         // --- INITIALIZATION --- //
         // Called after instantiation, before Start 
         void Awake()
@@ -256,7 +271,7 @@ namespace ActorSystem
             navAgent = this.gameObject.GetComponent<NavMeshAgent>();
             animator = this.gameObject.GetComponent<Animator>();
             rbody = this.gameObject.GetComponent<Rigidbody>();
-            
+            highlighter = new Highlighter(this.gameObject);
         }
     
         // Called before the first update

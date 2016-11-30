@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Friendly
   - Hostile
+  - StandardCamera
+  - VRCamera
   layers:
   - Default
   - TransparentFX
