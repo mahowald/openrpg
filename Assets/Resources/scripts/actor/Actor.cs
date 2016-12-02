@@ -264,6 +264,14 @@ namespace ActorSystem
             }
         }
 
+        // -- ACTION HANDLING -- //
+        private ActionHandler actionHandler;
+
+        public void DoAction(ActionData actData)
+        {
+            actionHandler.DoAction(actData);
+        }
+
         // --- INITIALIZATION --- //
         // Called after instantiation, before Start 
         void Awake()
@@ -272,6 +280,7 @@ namespace ActorSystem
             animator = this.gameObject.GetComponent<Animator>();
             rbody = this.gameObject.GetComponent<Rigidbody>();
             highlighter = new Highlighter(this.gameObject);
+            actionHandler = new ActionHandler(this);
         }
     
         // Called before the first update

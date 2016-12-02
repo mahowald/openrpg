@@ -102,7 +102,8 @@ public class GameController : MonoBehaviour {
     // Determine where the mouse clicked
     void Do3DMouseClick()
     {
-        if (Input.GetMouseButtonDown(0) && viewMode == ViewMode.Standard && !EventSystem.current.IsPointerOverGameObject())
+        if (Input.GetMouseButtonDown(0) && viewMode == ViewMode.Standard && !EventSystem.current.IsPointerOverGameObject()
+            && !SelectorBase.CurrentlySelecting )
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

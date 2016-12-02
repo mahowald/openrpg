@@ -86,6 +86,25 @@ public class TestClass : MonoBehaviour {
         Debug.Log(actor1.attributes["health"]); // should be 13 or 10
     }
 
+    public void TestActions(Geometry.Arc arc)
+    {
+        List<ActorSystem.Actor> actors = Geometry.GetActorsInArc(arc, a => a != SelectorBase.SourceActor);
+        foreach(ActorSystem.Actor a in actors)
+        {
+            a.DoAction(new ActorSystem.ActionData());
+        }
+    }
+
+    public void OnEnable()
+    {
+        EventManager.StartListening<Geometry.Arc>("Arc Selected", TestActions);
+    }
+
+    public void OnDisable()
+    {
+        EventManager.StopListening<Geometry.Arc>("Arc Selected", TestActions);
+    }
+
     /**
     public void ButtonPressed()
     {

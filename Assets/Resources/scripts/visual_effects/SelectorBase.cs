@@ -45,14 +45,34 @@ public class SelectorBase : MonoBehaviour {
         LookAtMouse();
 
         if (on)
+        {
             UpdateSelection();
+            if(Input.GetMouseButtonUp(0) ) // left click
+            {
+                StopSelection();
+                EventManager.TriggerEvent<Geometry.Arc>("Arc Selected", arc);
+            }
+            if(Input.GetMouseButtonUp(1)) // right click
+            {
+                StopSelection();
+            }
+        }
     }
 
     bool on = false;
     void SetFollowActor(ActorSystem.Actor a)
     {
         follow = a.transform;
+        currentActor = a;
     }
+
+    ActorSystem.Actor currentActor;
+    ActorSystem.Actor sourceActor;
+    public static ActorSystem.Actor SourceActor
+    {
+        get { return instance.sourceActor; }
+    }
+
     public void SetProjector()
     {
         on = !on;
@@ -125,10 +145,29 @@ public class SelectorBase : MonoBehaviour {
         }
     }
 
+    void StartSelection()
+    {
+        on = true;
+        projectorTop.SetActive(true);
+    }
+
+    void StopSelection()
+    {
+        on = false;
+        projectorTop.SetActive(false);
+        ClearSelection();
+        sourceActor = currentActor;
+    }
+
+    public static bool CurrentlySelecting
+    {
+        get { return instance.on;  }
+    }
+
     // Subscribe/Unsubscribe to our events
     public void OnEnable()
     {
-        EventManager.StartListening("AbilityButtonPressed", SetProjector);
+        EventManager.StartListening("AbilityButtonPressed", StartSelection);
         EventManager.StartListening<ActorSystem.Actor>("ActorClicked", SetFollowActor);
     }
     public void OnDisable()
