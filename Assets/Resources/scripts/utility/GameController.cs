@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using Valve.VR;
 
 // Game controller class
 public class GameController : MonoBehaviour {
@@ -53,6 +54,25 @@ public class GameController : MonoBehaviour {
         }
     }
 
+    void Awake()
+    {
+        if(VREnabled)
+        {
+            StartCoroutine(LoadDevice("OpenVR"));
+        }
+        else
+        {
+            StartCoroutine(LoadDevice(""));
+        }
+    }
+
+    IEnumerator LoadDevice(string newDevice)
+    {
+        UnityEngine.VR.VRSettings.LoadDeviceByName(newDevice);
+        yield return null;
+        UnityEngine.VR.VRSettings.enabled = VREnabled;
+    }
+
     // Use this for initialization
     void Start() {
         gameController = this;
@@ -75,7 +95,7 @@ public class GameController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        Do3DMouseClick();
+        Do3DMouseSelect();
         TogglePause();
         ToggleViewMode();
 	}
@@ -100,18 +120,48 @@ public class GameController : MonoBehaviour {
     }
 
     // Determine where the mouse clicked
-    void Do3DMouseClick()
+    // Also, highlight current mouse position
+    ActorSystem.Actor lastActor = null;
+    void Do3DMouseSelect()
     {
-        if (Input.GetMouseButtonDown(0) && viewMode == ViewMode.Standard && !EventSystem.current.IsPointerOverGameObject()
-            && !SelectorBase.CurrentlySelecting )
+        if (viewMode == ViewMode.Standard && !EventSystem.current.IsPointerOverGameObject() && !SelectorBase.CurrentlySelecting)
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit))
+            bool raycast = Physics.Raycast(ray, out hit);
+
+            ActorSystem.Actor actor = null;
+            if (raycast)
             {
-                if(hit.transform.GetComponent<ActorSystem.Actor>() == null) // check that we didn't click on an actor
-                    EventManager.TriggerEvent<Vector3>("MouseClickLocation3D", hit.point);
+                actor = hit.transform.GetComponent<ActorSystem.Actor>();
+                if (actor != null)
+                {
+                    actor.Highlighted = true;
+                    if (actor != lastActor && lastActor != null)
+                        lastActor.Highlighted = false;
+                    lastActor = actor;
+                }
+                else
+                {
+                    if (lastActor != null)
+                        lastActor.Highlighted = false;
+                    lastActor = null;
+                }
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    if (actor == null) // check that we didn't click on an actor
+                        EventManager.TriggerEvent<Vector3>("MouseClickLocation3D", hit.point);
+                }
             }
+            else
+            {
+                if (lastActor != null)
+                    lastActor.Highlighted = false;
+                lastActor = null;
+            }
+
+            
         }
     }
     

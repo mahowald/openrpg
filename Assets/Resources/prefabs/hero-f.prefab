@@ -385,9 +385,9 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 4000011532015338}
-  - 135: {fileID: 135000013304261798}
   - 54: {fileID: 54000010815650378}
   - 144: {fileID: 144000014033247618}
+  - 136: {fileID: 136000013213865666}
   m_Layer: 8
   m_Name: head
   m_TagString: Untagged
@@ -2726,18 +2726,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.1531082
   m_Center: {x: -0.12, y: 0, z: 0}
---- !u!135 &135000013304261798
-SphereCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000010920446970}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.06918995
-  m_Center: {x: -0.06918995, y: 0, z: 0}
 --- !u!136 &136000010872520466
 CapsuleCollider:
   m_ObjectHideFlags: 1
@@ -2803,6 +2791,19 @@ CapsuleCollider:
   m_Height: 0.45899314
   m_Direction: 0
   m_Center: {x: -0.22949657, y: 0, z: 0}
+--- !u!136 &136000013213865666
+CapsuleCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000010920446970}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.1
+  m_Height: 0.25
+  m_Direction: 0
+  m_Center: {x: -0.09, y: 0, z: 0}
 --- !u!136 &136000013448387660
 CapsuleCollider:
   m_ObjectHideFlags: 1
@@ -4976,6 +4977,7 @@ Cloth:
   - {fileID: 136000013448952874}
   - {fileID: 136000010872520466}
   - {fileID: 136000011180772832}
+  - {fileID: 136000013213865666}
   m_SphereColliders:
   - first: {fileID: 135000012661128876}
     second: {fileID: 0}
