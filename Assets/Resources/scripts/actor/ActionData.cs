@@ -6,7 +6,11 @@ namespace ActorSystem
 {
     public struct ActionData
     {
-        Dictionary<string, float> hostileAttributeMod; // hostile effects are mitigated by armor; resistances
-        Dictionary<string, float> friendlyAttributeMod; // friendly effects are not mitigated by armor or resistances
+        public Dictionary<string, float> attributeModifier;
+        public Geometry.Arc arc;
+        public bool bypassResistance;
+        public Dictionary<Effect, float> effects; // effects and their durations
+        public float range; // how far away before it can be used
+        public bool ranged;
     }
 }

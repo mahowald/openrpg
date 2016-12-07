@@ -9,6 +9,22 @@ using ActorSystem;
 /// </summary>
 public static class Geometry {
     
+    public struct Locatable : ILocatable
+    {
+        private Vector3 position;
+        private Vector3 direction;
+        public Vector3 Position
+        {
+            get { return position; }
+            set { position = value; }
+        }
+        public Vector3 Direction
+        {
+            get { return direction; }
+            set { direction = value; }
+        }
+    }
+
     public struct Arc
     {
         public float radius;
@@ -31,6 +47,7 @@ public static class Geometry {
             this.origin = new Vector2(origin.x, origin.z);
             this.direction = (new Vector2(direction.x, direction.z)).normalized;
         }
+        
     }
 
     /// <summary>

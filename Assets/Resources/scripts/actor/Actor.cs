@@ -6,7 +6,7 @@ namespace ActorSystem
 {
     // Who is controlling this character? (The computer, or the player)
     public enum MovementController { Computer, Player};
-
+    
     // Collect the attributes of the Actor
     // e.g. STR, DEX, MAG, WIL, CUN, CON -- basic attributes
     // as well as combat attributes such as hit points, armor, attack, defense, etc.
@@ -30,7 +30,7 @@ namespace ActorSystem
     [RequireComponent (typeof (Animator))]
     [RequireComponent (typeof (Rigidbody))]
     // [RequireComponent (typeof (Animator))]
-    public class Actor : MonoBehaviour, IPausable {
+    public class Actor : MonoBehaviour, IPausable, ILocatable {
         
         // The numerical attributes of the actor
         public Attributes attributes; // This should be set on initialization
@@ -88,11 +88,24 @@ namespace ActorSystem
         // Where to go when we're in click-to-move
         private void SetClickDestination(Vector3 targetDestination)
         {
+            if (movementController != MovementController.Player)
+                return;
+
+            Geometry.Locatable target = new Geometry.Locatable();
+            target.Position = targetDestination;
+            target.Direction = Vector3.zero;
+            QueuedAction = new EmptyAction<ILocatable>(this, target);
+
+            // Old way:
+            /**
             if (movementController == MovementController.Player)
                 Destination = targetDestination;
+             **/
         }
         
         // Set the destination based on keyboard movement
+        // returns True if the player is controlling this character AND there's movement input
+        // returns False otherwise
         private bool SetKeyboardMovement()
         {
             if (movementController == MovementController.Player)
@@ -267,9 +280,34 @@ namespace ActorSystem
         // -- ACTION HANDLING -- //
         private ActionHandler actionHandler;
 
-        public void DoAction(ActionData actData)
+        public IAction<ILocatable> QueuedAction
         {
-            actionHandler.DoAction(actData);
+            get { return actionHandler.queuedAction; }
+            set {
+                actionHandler.queuedAction = value;
+                if (value != null)
+                    Destination = value.Target.Position;
+                else
+                    Destination = this.Position;
+            }
+        }
+
+        public void TriggerActionAnimation()
+        {
+            // TODO: trigger animation
+            DoQueuedAction();
+            return;
+        }
+
+        public void DoQueuedAction()
+        {
+            QueuedAction.DoAction();
+            QueuedAction = null;
+        }
+
+        public void HandleAction(ActionData actData)
+        {
+            actionHandler.HandleAction(actData);
         }
 
         // --- INITIALIZATION --- //
@@ -296,15 +334,34 @@ namespace ActorSystem
                 bool keyboardMovementSet = SetKeyboardMovement();
                 if (!keyboardMovementSet)
                 {
+                    if(QueuedAction != null)
+                    {
+                        if(Vector3.Magnitude(this.Position - QueuedAction.Target.Position) < navAgent.stoppingDistance) // we're in range!
+                        {
+                            // TODO: Look at target
+                            TriggerActionAnimation();
+                        }
+                    }
+
                     if (navAgent.remainingDistance > navAgent.stoppingDistance)
                         Move(ScaledVelocity()*navAgent.desiredVelocity/navAgent.speed);
-                    else
+                    else 
                         Move(Vector3.zero);
                 }
+                else // there is keyboard input, so kill the queued action
+                {
+                    actionHandler.queuedAction = null;
+                }
+                
+                
 
+                // Movement is directly controlled by animations, not by the navAgent
+                // so we use these functions
                 navAgent.updatePosition = false;
                 // navAgent.updateRotation = true;
                 navAgent.nextPosition = transform.position;
+                
+
             }
             
         }

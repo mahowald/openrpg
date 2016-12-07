@@ -2,6 +2,7 @@
 using System.Collections;
 using Valve.VR;
 
+// Handle all VR-specific inputs
 public class VRRig : MonoBehaviour {
 
     private float scale0 = 1.0f;
@@ -16,6 +17,8 @@ public class VRRig : MonoBehaviour {
 
     private SteamVR_Controller.Device mainController {  get { return SteamVR_Controller.Input((int)mainHand.index); } }
     private SteamVR_Controller.Device offController { get { return SteamVR_Controller.Input((int)offHand.index); } }
+
+    public static Vector3 mousePosition = Vector3.zero;
 
     // Use this for initialization
     void Start () {
@@ -68,6 +71,8 @@ public class VRRig : MonoBehaviour {
         ActorSystem.Actor actor = null;
         if(raycast)
         {
+            VRRig.mousePosition = hit.point;
+
             actor = hit.transform.GetComponent<ActorSystem.Actor>();
             if(actor != null)
             {

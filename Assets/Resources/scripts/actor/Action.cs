@@ -18,8 +18,9 @@ namespace ActorSystem
     
     public interface IAction<T> : IAction
     {
-        T Target { get; }
-        Actor Source { get; }
+        T Target { get; } // the target of the action
+        Actor Source { get; } // who is performing the action
+        float Range { get; } // the range of the action
     }
     public abstract class Action<T> : IAction<T>
     {
@@ -40,6 +41,11 @@ namespace ActorSystem
             this.source = source;
         }
 
+        abstract public float Range
+        {
+            get;
+        }
+
         // Perform the action
         abstract public void DoAction();
     }
@@ -50,6 +56,36 @@ namespace ActorSystem
     {
         IActionPrototype<T> Deserialize(string input); // Deserialize the prototype from a (YAML) string
         IAction<T> Instantiate(Actor source, T target); // Create an actual Action from the prototype
+    }
+
+    public class EmptyActionPrototype<T> : Utility.SerializableElement, IActionPrototype<T>
+    {
+        public virtual IAction<T> Instantiate(Actor source, T target)
+        {
+            return new EmptyAction<T>(source, target);
+        }
+
+        public IActionPrototype<T> Deserialize(string s)
+        {
+            return new CombatActionPrototype<T>();
+        }
+    }
+
+    public class EmptyAction<T> : Action<T>, IAction<T>
+    {
+        public EmptyAction(Actor source, T target) : base(source, target)
+        {
+        }
+
+        public override float Range
+        {
+            get { return 0f; }
+        }
+
+        public override void DoAction()
+        {
+            return;
+        }
     }
 
     public class CombatActionPrototype<T> : Utility.SerializableElement, IActionPrototype<T>
@@ -82,6 +118,24 @@ namespace ActorSystem
         {
             get { return cost; }
             set { cost = value; }
+        }
+
+        // Whether or not this action is a ranged action
+        private bool ranged;
+        [YamlMember(Alias ="ranged")]
+        public bool Ranged
+        {
+            get { return ranged; }
+            set { ranged = value; }
+        }
+
+        // The range of the action (ignored if ranged=false)
+        private Expression range;
+        [YamlMember(Alias ="range")]
+        public Expression Range
+        {
+            get { return range; }
+            set { range = value; }
         }
 
         // chance of success (e.g., chance to hit for an attack)
@@ -119,11 +173,13 @@ namespace ActorSystem
             successChance = new Expression("0");
             criticalChance = new Expression("0");
             criticalEffects = new Dictionary<Effect, Expression>();
+            ranged = false;
+            range = new Expression("0");
         }
 
         public virtual IAction<T> Instantiate(Actor source, T target)
         {
-            return new CombatAction<T>(source, target, cooldown, effects, cost, successChance, criticalChance, criticalEffects);
+            return new CombatAction<T>(source, target, cooldown, effects, cost, successChance, criticalChance, criticalEffects, ranged, range);
         }
 
         public IActionPrototype<T> Deserialize(string s)
@@ -142,11 +198,14 @@ namespace ActorSystem
         protected Expression criticalChance;
         protected Dictionary<Effect, Expression> criticalEffects;
         protected Dictionary<string, float> variables;
+        protected Expression range;
+        protected bool ranged;
 
         private System.Random rand;
 
         public CombatAction(Actor source, T target, Expression cooldown, Dictionary<Effect, Expression> effects, 
-            Dictionary<string, Expression> cost, Expression successChance, Expression criticalChance, Dictionary<Effect, Expression> criticalEffects) : base(source, target)
+            Dictionary<string, Expression> cost, Expression successChance, Expression criticalChance, Dictionary<Effect, Expression> criticalEffects,
+            bool ranged, Expression range) : base(source, target)
         {
             this.cooldown = cooldown;
             this.effects = effects;
@@ -154,6 +213,8 @@ namespace ActorSystem
             this.successChance = successChance;
             this.criticalChance = criticalChance;
             this.criticalEffects = criticalEffects;
+            this.ranged = ranged;
+            this.range = range;
             variables = new Dictionary<string, float>();
             UpdateSourceVariables();
             rand = new System.Random();
@@ -199,6 +260,14 @@ namespace ActorSystem
             }
         }
 
+        public override float Range
+        {
+            get
+            {
+                return range.Evaluate(variables);
+            }
+        }
+
         private void UpdateSourceVariables()
         {
             Attributes sourceAtts = this.Source.attributes;
@@ -212,10 +281,17 @@ namespace ActorSystem
 
         public override void DoAction()
         {
+            ActionData actionData = new ActionData();
+            actionData.attributeModifier = new Dictionary<string, float>();
+            actionData.bypassResistance = true;
+            actionData.ranged = ranged;
+            actionData.range = range.Evaluate(variables);
+
             foreach(string attribute in cost.Keys)
             {
-                Source.attributes[attribute] -= cost[attribute].Evaluate(variables);
+                actionData.attributeModifier.Add(attribute, -1 * cost[attribute].Evaluate(variables));
             }
+            Source.HandleAction(actionData);
         }
     }
 
@@ -244,7 +320,7 @@ namespace ActorSystem
         public override IAction<Actor> Instantiate(Actor source, Actor target)
         {
             return new SingleTargetDamageAction(source, target, damage, 
-                Cooldown, Effects, Cost, SuccessChance, CriticalChance, criticalBonus, CriticalEffects);
+                Cooldown, Effects, Cost, SuccessChance, CriticalChance, criticalBonus, CriticalEffects, Ranged, Range);
         }
 
     }
@@ -256,8 +332,8 @@ namespace ActorSystem
 
         public SingleTargetDamageAction(Actor source, Actor target, Dictionary<string, Expression> damage, Expression cooldown, 
             Dictionary<Effect, Expression> effects, Dictionary<string, Expression> cost, Expression successChance, 
-            Expression criticalChance, Expression criticalBonus, Dictionary<Effect, Expression> criticalEffects) 
-            : base(source, target, cooldown, effects, cost, successChance, criticalChance, criticalEffects)
+            Expression criticalChance, Expression criticalBonus, Dictionary<Effect, Expression> criticalEffects, bool ranged, Expression range) 
+            : base(source, target, cooldown, effects, cost, successChance, criticalChance, criticalEffects, ranged, range)
         {
             this.damage = damage;
             this.criticalBonus = criticalBonus;
@@ -280,208 +356,53 @@ namespace ActorSystem
             base.DoAction();
             bool success = IsSuccess;
             bool crit = IsCriticalSuccess;
-            if(success) // if the attack hits
+            ActionData actionData = new ActionData();
+            actionData.bypassResistance = false; // attacks should use resistances
+            if (success) // if the attack hits
             {
-                float multiplier = 1f;
+                actionData.attributeModifier = new Dictionary<string, float>();
+                actionData.effects = new Dictionary<Effect, float>();
+                float multiplier = 1f; // TODO: expose this from game variables
                 if (crit)
                     multiplier = criticalBonus.Evaluate(variables);
                 foreach(string attribute in damage.Keys)
                 {
-                    Target.attributes[attribute] -= multiplier*damage[attribute].Evaluate(variables);
+                    if (actionData.attributeModifier.ContainsKey(attribute))
+                        actionData.attributeModifier[attribute] += -1 * multiplier * damage[attribute].Evaluate(variables);
+                    else
+                        actionData.attributeModifier.Add(attribute, -1* multiplier*damage[attribute].Evaluate(variables));
                 }
                 foreach(Effect effect in effects.Keys)
                 {
-                    Target.AddEffect(effect, effects[effect].Evaluate(variables));
+                    if (actionData.effects.ContainsKey(effect))
+                        actionData.effects[effect] = effects[effect].Evaluate(variables);
+                    else
+                        actionData.effects.Add(effect, effects[effect].Evaluate(variables));
                 }
                 if (crit)
                 {
                     foreach(Effect effect in criticalEffects.Keys)
                     {
-                        Target.AddEffect(effect, criticalEffects[effect].Evaluate(variables));
+                        if (actionData.effects.ContainsKey(effect))
+                            actionData.effects[effect] = criticalEffects[effect].Evaluate(variables);
+                        else
+                            actionData.effects.Add(effect, criticalEffects[effect].Evaluate(variables));
                     }
                 }
             }
             else if(crit) // critical hits always do some damage, e.g., "grazed" or "glancing hit"
             {
+                actionData.attributeModifier = new Dictionary<string, float>();
                 foreach (string attribute in damage.Keys)
                 {
                     // TODO: Should we apply a multiplier for grazing hits?
-                    Target.attributes[attribute] -= damage[attribute].Evaluate(variables); 
+                    if (actionData.attributeModifier.ContainsKey(attribute))
+                        actionData.attributeModifier[attribute] += -1 * damage[attribute].Evaluate(variables);
+                    else
+                        actionData.attributeModifier.Add(attribute, -1 * damage[attribute].Evaluate(variables));
                 }
             }
-        }
-
-    }
-
-    public class ActorTransactionPrototype : Utility.SerializableElement, IActionPrototype<Actor>
-    {
-        private Dictionary<string, Expression> targetDiff;
-        private Dictionary<string, Expression> sourceDiff;
-
-        [YamlMember(Alias = "target_diff")]
-        public Dictionary<string, Expression> TargetDiff
-        {
-            get { return targetDiff; }
-            set { targetDiff = value; }
-        }
-
-        [YamlMember(Alias = "source_diff")]
-        public Dictionary<string, Expression> SourceDiff
-        {
-            get { return sourceDiff; }
-            set { sourceDiff = value; }
-        }
-
-        // default constructor
-        public ActorTransactionPrototype()
-        {
-            targetDiff = new Dictionary<string, Expression>();
-            sourceDiff = new Dictionary<string, Expression>();
-        }
-
-        public ActorTransactionPrototype(Dictionary<string, Expression> targetDiff, Dictionary<string, Expression> sourceDiff)
-        {
-            this.targetDiff = targetDiff;
-            this.sourceDiff = sourceDiff;
-        }
-
-        public virtual IActionPrototype<Actor> Deserialize(string input)
-        {
-            return new ActorTransactionPrototype(null, null);
-        }
-
-        public virtual IAction<Actor> Instantiate(Actor source, Actor target)
-        {
-            return new ActorTransaction(source, target, targetDiff, sourceDiff);
-        }
-    }
-
-    // An actor transaction directly modifies the attributes of the actors involved.
-    // For example, a heal spell should increase the hitpoints of the target actor,
-    // but decrease the mana of the source actor.
-    // A "free" action (e.g. a basic attack) might have no effect on the attributes
-    // of the source actor. 
-    public class ActorTransaction : Action<Actor>, IAction<Actor>
-    {
-        protected Dictionary<string, float> variables;
-        protected Dictionary<string, Expression> targetDiff;
-        protected Dictionary<string, Expression> sourceDiff;
-        public ActorTransaction(Actor source, Actor target, Dictionary<string, Expression> targetDiff, Dictionary<string, Expression> sourceDiff) : base(source, target)
-        {
-            variables = AggregateVariables();
-            this.targetDiff = targetDiff;
-            this.sourceDiff = sourceDiff;
-        }
-
-        public override void DoAction()
-        {
-            foreach(string attribute in targetDiff.Keys)
-            {
-                Target.attributes[attribute] += targetDiff[attribute].Evaluate(variables);
-            }
-            foreach (string attribute in sourceDiff.Keys)
-            {
-                Source.attributes[attribute] += sourceDiff[attribute].Evaluate(variables);
-            }
-        }
-        
-        private Dictionary<string, float> AggregateVariables()
-        {
-            Dictionary<string, float> aggregated = new Dictionary<string, float>();
-            Attributes sourceAtts = this.Source.attributes;
-            Attributes targetAtts = this.Target.attributes;
-            foreach(string key in sourceAtts.attributes.Keys)
-            {
-                string newname = "source." + key;
-                float value = sourceAtts[key];
-                aggregated.Add(newname, value);
-            }
-            foreach (string key in targetAtts.attributes.Keys)
-            {
-                string newname = "target." + key;
-                float value = targetAtts[key];
-                aggregated.Add(newname, value);
-            }
-
-            return aggregated;
-        }
-    }
-
-    // Actor transactions that have a chance of failure
-    public class ProbabalisticActorTransactionPrototype : ActorTransactionPrototype
-    {
-        private Expression sourceSuccessChance;
-        private Expression targetSuccessChance;
-
-        public ProbabalisticActorTransactionPrototype() : base()
-        {
-            sourceSuccessChance = new Expression("100"); // default chance is 100
-            targetSuccessChance = new Expression("100"); // default chance is 100
-        }
-
-        public ProbabalisticActorTransactionPrototype(Dictionary<string, Expression> targetDiff, Dictionary<string, Expression> sourceDiff, 
-            Expression targetSuccessChance, Expression sourceSuccessChance) : base(targetDiff, sourceDiff)
-        {
-            this.targetSuccessChance = targetSuccessChance;
-            this.sourceSuccessChance = sourceSuccessChance;
-        }
-
-        [YamlMember(Alias = "source_chance")]
-        public Expression SourceSuccessChance
-        {
-            get { return sourceSuccessChance; }
-            set { sourceSuccessChance = value; }
-        }
-
-        [YamlMember(Alias = "target_chance")]
-        public Expression TargetSuccessChance
-        {
-            get { return targetSuccessChance; }
-            set { targetSuccessChance = value; }
-        }
-        
-        public override IAction<Actor> Instantiate(Actor source, Actor target)
-        {
-            return new ProbabalisticActorTransaction(source, target, TargetDiff, SourceDiff, targetSuccessChance, sourceSuccessChance);
-        }
-
-    }
-    
-    // Transactions that have a chance of failure
-    public class ProbabalisticActorTransaction : ActorTransaction
-    {
-        protected Expression sourceSuccessChance;
-        protected Expression targetSuccessChance;
-        public ProbabalisticActorTransaction(Actor source, Actor target, Dictionary<string, Expression> targetDiff, Dictionary<string, Expression> sourceDiff, 
-            Expression targetSuccessChance, Expression sourceSuccessChance) : base(source, target, targetDiff, sourceDiff)
-        {
-            this.sourceSuccessChance = sourceSuccessChance;
-            this.targetSuccessChance = targetSuccessChance;
-        }
-
-        public override void DoAction()
-        {
-            System.Random rand = new System.Random();
-            float sourceSuccess = sourceSuccessChance.Evaluate(variables);
-            float targetSuccess = targetSuccessChance.Evaluate(variables);
-
-            float targetRoll = rand.Next(0, 100);
-            if(targetSuccess >= targetRoll)
-            {
-                foreach (string attribute in targetDiff.Keys)
-                {
-                    Target.attributes[attribute] += targetDiff[attribute].Evaluate(variables);
-                }
-
-            }
-            float sourceRoll = rand.Next(0, 100);
-            if(sourceSuccess >= sourceRoll)
-            {
-                foreach (string attribute in sourceDiff.Keys)
-                {
-                    Source.attributes[attribute] += sourceDiff[attribute].Evaluate(variables);
-                }
-            }
+            Target.HandleAction(actionData);
         }
 
     }

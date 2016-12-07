@@ -42,6 +42,19 @@ public class GameController : MonoBehaviour {
         get { return viewMode; }
     }
 
+    private static Vector3 mousePosition = Vector3.zero;
+
+    public static Vector3 MousePosition
+    {
+        get
+        {
+            if (vrEnabled)
+                return VRRig.mousePosition;
+            else
+                return mousePosition;
+        }
+    }
+
     private static GameController gameController;
 
     private static Transform gameCamera;
@@ -124,7 +137,7 @@ public class GameController : MonoBehaviour {
     ActorSystem.Actor lastActor = null;
     void Do3DMouseSelect()
     {
-        if (viewMode == ViewMode.Standard && !EventSystem.current.IsPointerOverGameObject() && !SelectorBase.CurrentlySelecting)
+        if (viewMode == ViewMode.Standard && !EventSystem.current.IsPointerOverGameObject())
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -133,6 +146,8 @@ public class GameController : MonoBehaviour {
             ActorSystem.Actor actor = null;
             if (raycast)
             {
+                GameController.mousePosition = hit.point;
+
                 actor = hit.transform.GetComponent<ActorSystem.Actor>();
                 if (actor != null)
                 {
@@ -148,7 +163,7 @@ public class GameController : MonoBehaviour {
                     lastActor = null;
                 }
 
-                if (Input.GetMouseButtonDown(0))
+                if (Input.GetMouseButtonDown(0) && !SelectorBase.CurrentlySelecting)
                 {
                     if (actor == null) // check that we didn't click on an actor
                         EventManager.TriggerEvent<Vector3>("MouseClickLocation3D", hit.point);

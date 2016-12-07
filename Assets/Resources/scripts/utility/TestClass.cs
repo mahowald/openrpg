@@ -55,35 +55,7 @@ public class TestClass : MonoBehaviour {
     
     void TestActionPrototype()
     {
-        Deserializer deserializer = new Deserializer();
-        Expression deexp = deserializer.Deserialize<Expression>(new StringReader("source.x + 5"));
-        // Debug.Log(deexp.Evaluate(new Dictionary<string, float> { { "source.x", 3f } })); // should be 8
-
-        Expression myExp = new Expression("source.x + 5");
-        Dictionary<string, Expression> myExps = new Dictionary<string, Expression> { { "health", myExp } };
-        Dictionary<string, float> myVariables = new Dictionary<string, float> { { "source.health", 10f } };
-        ActorSystem.ActorTransactionPrototype aproto = new ActorSystem.ActorTransactionPrototype(myExps, new Dictionary<string, Expression>());
-
-        //Serializer serializer = new Serializer();
-        //StringBuilder stringBuilder = new StringBuilder();
-        //StringWriter stringWriter = new StringWriter(stringBuilder);
-        //serializer.Serialize(stringWriter, myExp);
-
-        ActorSystem.ProbabalisticActorTransactionPrototype aproto2 = deserializer.Deserialize<ActorSystem.ProbabalisticActorTransactionPrototype>(new StringReader(Document));
-        foreach(Expression exp in aproto2.TargetDiff.Values)
-        {
-            Debug.Log(exp.Evaluate(myVariables)); // should produce 8
-        }
-        // Dictionary<string, Dictionary<string, string>> myDict = deserializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(new StringReader(Document));
-        // Debug.Log(myDict["target_diff"]["health"]);
-        // Debug.Log(stringBuilder);
-
-        actor1.attributes = new ActorSystem.Attributes(new Dictionary<string, float>());
-        actor1.attributes.attributes.Add("health", 10f);
-        Debug.Log(actor1.attributes["health"]); // should be 10
-        ActorSystem.IAction<ActorSystem.Actor> myAction = aproto2.Instantiate(actor1, actor1);
-        myAction.DoAction();
-        Debug.Log(actor1.attributes["health"]); // should be 13 or 10
+        return;
     }
 
     public void TestActions(Geometry.Arc arc)
@@ -91,7 +63,7 @@ public class TestClass : MonoBehaviour {
         List<ActorSystem.Actor> actors = Geometry.GetActorsInArc(arc, a => a != SelectorBase.SourceActor);
         foreach(ActorSystem.Actor a in actors)
         {
-            a.DoAction(new ActorSystem.ActionData());
+            a.HandleAction(new ActorSystem.ActionData());
         }
     }
 

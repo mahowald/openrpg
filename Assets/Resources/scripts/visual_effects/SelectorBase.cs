@@ -137,12 +137,16 @@ public class SelectorBase : MonoBehaviour {
 
     void GetMousePosition()
     {
+        mousePosition = GameController.MousePosition;
+        return;
+        /**
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out hit))
         {
             mousePosition = new Vector3(hit.point.x, transform.position.y, hit.point.z);
         }
+    **/
     }
 
     void StartSelection()
