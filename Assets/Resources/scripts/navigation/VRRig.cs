@@ -20,9 +20,14 @@ public class VRRig : MonoBehaviour {
 
     public static Vector3 mousePosition = Vector3.zero;
 
+    public static VRRig instance = null;
+
     // Use this for initialization
     void Start () {
-
+        if (instance != null)
+            Debug.LogError("There can only be one VRRig instance!");
+        else
+            VRRig.instance = this;
 	}
 
     // private Vector3 velocity;
@@ -46,16 +51,31 @@ public class VRRig : MonoBehaviour {
         VRControllerState_t controllerState = new VRControllerState_t();
         if (!OpenVR.System.GetControllerState((uint)offHand.index, ref controllerState))
             return;
-        if (offController.GetPressUp(SteamVR_Controller.ButtonMask.Touchpad))
+        if (offController.GetPress(SteamVR_Controller.ButtonMask.Trigger) && offController.GetPressUp(SteamVR_Controller.ButtonMask.Touchpad))
         {
             float input = offController.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad).y;
             currentScale = Mathf.Clamp(currentScale - Mathf.Sign(input)*1f, scale0, scale1); // we move in discrete steps to avoid nausea
             transform.localScale = currentScale * Vector3.one;
         }
-        if (offController.GetPressUp(SteamVR_Controller.ButtonMask.Trigger))
+        else if (offController.GetPress(SteamVR_Controller.ButtonMask.Trigger))
         {
             this.transform.position = follow.position;
         }
+    }
+
+    public static Vector2 GetOffHandMoveVector()
+    {
+        VRControllerState_t controllerState = new VRControllerState_t();
+        if (!OpenVR.System.GetControllerState((uint)instance.offHand.index, ref controllerState))
+            return Vector2.zero;
+
+        if (!instance.offController.GetPress(SteamVR_Controller.ButtonMask.Touchpad) || !instance.offController.GetPress(SteamVR_Controller.ButtonMask.Trigger))
+            return Vector2.zero;
+
+        float vertical = instance.offController.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad).y;
+        float horizontal = instance.offController.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad).x;
+
+        return new Vector2(horizontal, vertical);
     }
 
     ActorSystem.Actor lastActor = null;

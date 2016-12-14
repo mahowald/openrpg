@@ -14,6 +14,7 @@ namespace ActorSystem
     public interface IAction
     {
         void DoAction();
+        Vector3 TargetPosition { get; }
     }
     
     public interface IAction<T> : IAction
@@ -22,6 +23,7 @@ namespace ActorSystem
         Actor Source { get; } // who is performing the action
         float Range { get; } // the range of the action
     }
+
     public abstract class Action<T> : IAction<T>
     {
         private T target; // who/what the action is done to
@@ -44,6 +46,11 @@ namespace ActorSystem
         abstract public float Range
         {
             get;
+        }
+
+        virtual public Vector3 TargetPosition
+        {
+            get { return Source.Position; }
         }
 
         // Perform the action
@@ -85,6 +92,21 @@ namespace ActorSystem
         public override void DoAction()
         {
             return;
+        }
+    }
+
+    public class LocatableEmptyAction : EmptyAction<ILocatable>
+    {
+        public LocatableEmptyAction(Actor source, ILocatable target) : base(source, target)
+        {
+        }
+
+        public override Vector3 TargetPosition
+        {
+            get
+            {
+                return Target.Position;
+            }
         }
     }
 
@@ -349,6 +371,11 @@ namespace ActorSystem
                 float value = targetAtts[key];
                 variables.Add(newname, value);
             }
+        }
+
+        public override Vector3 TargetPosition
+        {
+            get { return Target.Position; }
         }
 
         public override void DoAction()

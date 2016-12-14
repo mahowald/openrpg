@@ -6,7 +6,7 @@ namespace ActorSystem
     public class ActionHandler
     {
         private Actor parent;
-        public IAction<ILocatable> queuedAction = null;
+        public IAction queuedAction = null;
 
         public ActionHandler(Actor parent)
         {
@@ -34,7 +34,8 @@ namespace ActorSystem
                 }
             }
 
-            Debug.Log(parent.gameObject.name + " says OW!");
+            if(actionData.bypassResistance == false) // then it's damage
+                Debug.Log(parent.gameObject.name + " says OW!");
         }
     }
     

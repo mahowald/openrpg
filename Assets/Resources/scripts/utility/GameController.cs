@@ -132,6 +132,33 @@ public class GameController : MonoBehaviour {
         }
     }
 
+    private static ActorSystem.Actor playerActor = null; // the currently selected actor
+    public static ActorSystem.Actor PlayerActor
+    {
+        get
+        {
+            if(playerActor != null)
+                return playerActor;
+            else
+            {
+                foreach(ActorSystem.Actor a in Actors)
+                {
+                    if(a.movementController == ActorSystem.MovementController.Player)
+                    {
+                        playerActor = a;
+                        return playerActor;
+                    }
+                }
+                return null;
+            }
+        }
+    }
+
+    public static void UpdatePlayerActor(ActorSystem.Actor a)
+    {
+        playerActor = a;
+    }
+
     // Determine where the mouse clicked
     // Also, highlight current mouse position
     ActorSystem.Actor lastActor = null;
@@ -183,13 +210,27 @@ public class GameController : MonoBehaviour {
     // Convert the movement input into a 3-vector direction
     public static Vector3 Get3DMovementDir()
     {
-        float moveInX = Input.GetAxis("Horizontal");
-        float moveInY = Input.GetAxis("Vertical");
+        if(vrEnabled)
+        {
+            Vector2 moveInput = VRRig.GetOffHandMoveVector();
+            float moveInX = moveInput.x;
+            float moveInY = moveInput.y;
 
-        Vector3 cameraForward = new Vector3(gameCamera.forward.x, 0, gameCamera.forward.z).normalized;
-        Vector3 cameraRight = new Vector3(gameCamera.right.x, 0, gameCamera.right.z).normalized;
+            Vector3 cameraForward = new Vector3(gameCamera.forward.x, 0, gameCamera.forward.z).normalized;
+            Vector3 cameraRight = new Vector3(gameCamera.right.x, 0, gameCamera.right.z).normalized;
 
-        return moveInX*cameraRight + moveInY*cameraForward;
+            return moveInX * cameraRight + moveInY * cameraForward;
+        }
+        else
+        {
+            float moveInX = Input.GetAxis("Horizontal");
+            float moveInY = Input.GetAxis("Vertical");
+
+            Vector3 cameraForward = new Vector3(gameCamera.forward.x, 0, gameCamera.forward.z).normalized;
+            Vector3 cameraRight = new Vector3(gameCamera.right.x, 0, gameCamera.right.z).normalized;
+
+            return moveInX * cameraRight + moveInY * cameraForward;
+        }
     }
     
     void ToggleViewMode()
@@ -221,15 +262,34 @@ public class GameController : MonoBehaviour {
             Cursor.visible = true;
         }
     }
+    
+    public static void PlayerActorBasicAttack(ActorSystem.Actor target)
+    {
+        // TODO: Think about how this should really be done.
+        ActorSystem.SingleTargetDamageActionPrototype actionPrototype = new ActorSystem.SingleTargetDamageActionPrototype();
+        actionPrototype.Cooldown = new Expression("0");
+        actionPrototype.Cost = new Dictionary<string, Expression>();
+        actionPrototype.Damage = new Dictionary<string, Expression>(); //  { { "health", new Expression("5") } };
+
+        var action =  actionPrototype.Instantiate(PlayerActor, target);
+
+        PlayerActor.QueuedAction = action;
+
+    }
+
 
     // Subscribe/Unsubscribe to our events
     public void OnEnable()
     {
         EventManager.StartListening<bool>("Orthographic Mode", SetOrthographicMode);
+        EventManager.StartListening<ActorSystem.Actor>("ActorRightClicked", PlayerActorBasicAttack);
+        // EventManager.StartListening<ActorSystem.Actor>("ActorClicked", UpdatePlayerActor);
     }
     public void OnDisable()
     {
         EventManager.StopListening<bool>("Orthographic Mode", SetOrthographicMode);
+        EventManager.StopListening<ActorSystem.Actor>("ActorRightClicked", PlayerActorBasicAttack);
+        // EventManager.StopListening<ActorSystem.Actor>("ActorClicked", UpdatePlayerActor);
     }
 
 }

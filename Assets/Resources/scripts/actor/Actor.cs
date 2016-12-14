@@ -94,7 +94,7 @@ namespace ActorSystem
             Geometry.Locatable target = new Geometry.Locatable();
             target.Position = targetDestination;
             target.Direction = Vector3.zero;
-            QueuedAction = new EmptyAction<ILocatable>(this, target);
+            QueuedAction = new LocatableEmptyAction(this, target);
 
             // Old way:
             /**
@@ -245,11 +245,20 @@ namespace ActorSystem
             EventManager.StopListening<Vector3>("MouseClickLocation3D", SetClickDestination);
             EventManager.StopListening<Actor>("ActorClicked", ActorClicked);
         }
-        // Events that we trigger
-        public void OnMouseUpAsButton()
+
+        // Detect mouse clicks
+        public void OnMouseOver()
         {
-            if (GameController.VMode != GameController.ViewMode.FreeLook)
-                EventManager.TriggerEvent<Actor>("ActorClicked", this);
+            if(Input.GetMouseButtonUp(0)) // left click
+            {
+                if (GameController.VMode != GameController.ViewMode.FreeLook)
+                    EventManager.TriggerEvent<Actor>("ActorClicked", this);
+            }
+            if(Input.GetMouseButtonUp(1)) // right click
+            {
+                if (GameController.VMode != GameController.ViewMode.FreeLook)
+                    EventManager.TriggerEvent<Actor>("ActorRightClicked", this);
+            }
         }
 
         // -- SELECT/DESELECT -- //
@@ -257,7 +266,10 @@ namespace ActorSystem
         {
             //TODO: allies versus enemies
             if (this == a)
+            {
                 movementController = MovementController.Player;
+                GameController.UpdatePlayerActor(this);
+            }
             else
                 movementController = MovementController.Computer;
         }
@@ -280,13 +292,13 @@ namespace ActorSystem
         // -- ACTION HANDLING -- //
         private ActionHandler actionHandler;
 
-        public IAction<ILocatable> QueuedAction
+        public IAction QueuedAction
         {
             get { return actionHandler.queuedAction; }
             set {
                 actionHandler.queuedAction = value;
                 if (value != null)
-                    Destination = value.Target.Position;
+                    Destination = value.TargetPosition;
                 else
                     Destination = this.Position;
             }
@@ -319,6 +331,8 @@ namespace ActorSystem
             rbody = this.gameObject.GetComponent<Rigidbody>();
             highlighter = new Highlighter(this.gameObject);
             actionHandler = new ActionHandler(this);
+
+            attributes.attributes = new Dictionary<string, float>();
         }
     
         // Called before the first update
@@ -336,7 +350,7 @@ namespace ActorSystem
                 {
                     if(QueuedAction != null)
                     {
-                        if(Vector3.Magnitude(this.Position - QueuedAction.Target.Position) < navAgent.stoppingDistance) // we're in range!
+                        if(Vector3.Magnitude(this.Position - QueuedAction.TargetPosition) < navAgent.stoppingDistance) // we're in range!
                         {
                             // TODO: Look at target
                             TriggerActionAnimation();
@@ -353,8 +367,6 @@ namespace ActorSystem
                     actionHandler.queuedAction = null;
                 }
                 
-                
-
                 // Movement is directly controlled by animations, not by the navAgent
                 // so we use these functions
                 navAgent.updatePosition = false;

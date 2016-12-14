@@ -36,6 +36,8 @@ public class SelectorBase : MonoBehaviour {
         else
             Debug.LogError("There can only be one Selector in the scene.");
         selectedActors = new HashSet<ActorSystem.Actor>();
+        currentActor = follow.gameObject.GetComponent<ActorSystem.Actor>();
+
 	}
     
     // Update is called once per frame
@@ -51,6 +53,10 @@ public class SelectorBase : MonoBehaviour {
             {
                 StopSelection();
                 EventManager.TriggerEvent<Geometry.Arc>("Arc Selected", arc);
+                Geometry.Locatable target = new Geometry.Locatable();
+                target.Position = this.transform.position;
+                target.Direction = this.transform.forward;
+                currentActor.QueuedAction = new ActorSystem.EmptyAction<ILocatable>(currentActor, target);
             }
             if(Input.GetMouseButtonUp(1)) // right click
             {
