@@ -270,7 +270,8 @@ public class GameController : MonoBehaviour {
         actionPrototype.Cooldown = new Expression("0");
         actionPrototype.Cost = new Dictionary<string, Expression>();
         actionPrototype.Damage = new Dictionary<string, Expression>(); //  { { "health", new Expression("5") } };
-
+        actionPrototype.Range = new Expression("1");
+        actionPrototype.Animation = ActorSystem.ActionAnimation.BasicAttack;
         var action =  actionPrototype.Instantiate(PlayerActor, target);
 
         PlayerActor.QueuedAction = action;

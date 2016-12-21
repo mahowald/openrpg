@@ -304,17 +304,31 @@ namespace ActorSystem
             }
         }
 
+        bool actionTriggered = false;
         public void TriggerActionAnimation()
         {
-            // TODO: trigger animation
-            DoQueuedAction();
+            if(!actionTriggered)
+            {
+                actionTriggered = true;
+                switch (QueuedAction.Animation)
+                {
+                    case ActionAnimation.None:
+                        DoQueuedAction();
+                        break;
+                    case ActionAnimation.BasicAttack:
+                        animator.SetTrigger("DoAttack");
+                        break;
+                }
+            }
             return;
         }
 
         public void DoQueuedAction()
         {
-            QueuedAction.DoAction();
+            if (QueuedAction != null)
+                QueuedAction.DoAction();
             QueuedAction = null;
+            actionTriggered = false;
         }
 
         public void HandleAction(ActionData actData)
@@ -350,8 +364,9 @@ namespace ActorSystem
                 {
                     if(QueuedAction != null)
                     {
-                        if(Vector3.Magnitude(this.Position - QueuedAction.TargetPosition) < navAgent.stoppingDistance) // we're in range!
+                        if(Vector3.Magnitude(this.Position - QueuedAction.TargetPosition) < navAgent.stoppingDistance + QueuedAction.Range) // we're in range!
                         {
+                            navAgent.destination = this.Position;
                             // TODO: Look at target
                             TriggerActionAnimation();
                         }

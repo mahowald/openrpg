@@ -69,7 +69,7 @@ public class VRRig : MonoBehaviour {
         if (!OpenVR.System.GetControllerState((uint)instance.offHand.index, ref controllerState))
             return Vector2.zero;
 
-        if (!instance.offController.GetPress(SteamVR_Controller.ButtonMask.Touchpad) || !instance.offController.GetPress(SteamVR_Controller.ButtonMask.Trigger))
+        if (!instance.offController.GetPress(SteamVR_Controller.ButtonMask.Touchpad) || instance.offController.GetPress(SteamVR_Controller.ButtonMask.Trigger))
             return Vector2.zero;
 
         float vertical = instance.offController.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad).y;

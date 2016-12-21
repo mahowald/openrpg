@@ -11,23 +11,29 @@ namespace ActorSystem
     // All actions must have a source and a target
     // The target can be of a generic type, though 
     // (e.g., another Actor, the same Actor, a vector, ..)
+
+    public enum ActionAnimation { None, BasicAttack };
+
     public interface IAction
     {
         void DoAction();
         Vector3 TargetPosition { get; }
+        float Range { get; } // the range of the action
+        ActionAnimation Animation { get; } // the animation to play
     }
-    
+
     public interface IAction<T> : IAction
     {
         T Target { get; } // the target of the action
         Actor Source { get; } // who is performing the action
-        float Range { get; } // the range of the action
     }
 
     public abstract class Action<T> : IAction<T>
     {
         private T target; // who/what the action is done to
         private Actor source; // who is doing the action
+        protected ActionAnimation animation = ActionAnimation.None; 
+
         public T Target
         {
             get { return target; }
@@ -43,6 +49,18 @@ namespace ActorSystem
             this.source = source;
         }
 
+        public Action(Actor source, T target, ActionAnimation animation)
+        {
+            this.target = target;
+            this.source = source;
+            this.animation = animation;
+        }
+
+        public ActionAnimation Animation
+        {
+            get { return animation; }
+            set { animation = value;  }
+        }
         abstract public float Range
         {
             get;
@@ -112,6 +130,14 @@ namespace ActorSystem
 
     public class CombatActionPrototype<T> : Utility.SerializableElement, IActionPrototype<T>
     {
+        // The animation to play when doing the action
+        private ActionAnimation animation;
+        [YamlMember(Alias = "animation")]
+        public ActionAnimation Animation
+        {
+            get { return animation; }
+            set { animation = value; }
+        }
 
         // The recharge time between uses.
         private Expression cooldown;
@@ -201,7 +227,7 @@ namespace ActorSystem
 
         public virtual IAction<T> Instantiate(Actor source, T target)
         {
-            return new CombatAction<T>(source, target, cooldown, effects, cost, successChance, criticalChance, criticalEffects, ranged, range);
+            return new CombatAction<T>(source, target, animation, cooldown, effects, cost, successChance, criticalChance, criticalEffects, ranged, range);
         }
 
         public IActionPrototype<T> Deserialize(string s)
@@ -225,9 +251,9 @@ namespace ActorSystem
 
         private System.Random rand;
 
-        public CombatAction(Actor source, T target, Expression cooldown, Dictionary<Effect, Expression> effects, 
+        public CombatAction(Actor source, T target, ActionAnimation animation, Expression cooldown, Dictionary<Effect, Expression> effects, 
             Dictionary<string, Expression> cost, Expression successChance, Expression criticalChance, Dictionary<Effect, Expression> criticalEffects,
-            bool ranged, Expression range) : base(source, target)
+            bool ranged, Expression range) : base(source, target, animation)
         {
             this.cooldown = cooldown;
             this.effects = effects;
@@ -341,7 +367,7 @@ namespace ActorSystem
 
         public override IAction<Actor> Instantiate(Actor source, Actor target)
         {
-            return new SingleTargetDamageAction(source, target, damage, 
+            return new SingleTargetDamageAction(source, target, ActionAnimation.BasicAttack, damage, 
                 Cooldown, Effects, Cost, SuccessChance, CriticalChance, criticalBonus, CriticalEffects, Ranged, Range);
         }
 
@@ -352,10 +378,10 @@ namespace ActorSystem
         protected Dictionary<string, Expression> damage;
         protected Expression criticalBonus;
 
-        public SingleTargetDamageAction(Actor source, Actor target, Dictionary<string, Expression> damage, Expression cooldown, 
+        public SingleTargetDamageAction(Actor source, Actor target, ActionAnimation animation, Dictionary<string, Expression> damage, Expression cooldown, 
             Dictionary<Effect, Expression> effects, Dictionary<string, Expression> cost, Expression successChance, 
             Expression criticalChance, Expression criticalBonus, Dictionary<Effect, Expression> criticalEffects, bool ranged, Expression range) 
-            : base(source, target, cooldown, effects, cost, successChance, criticalChance, criticalEffects, ranged, range)
+            : base(source, target, animation, cooldown, effects, cost, successChance, criticalChance, criticalEffects, ranged, range)
         {
             this.damage = damage;
             this.criticalBonus = criticalBonus;
