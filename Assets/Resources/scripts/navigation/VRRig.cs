@@ -15,8 +15,32 @@ public class VRRig : MonoBehaviour {
     public SteamVR_TrackedObject mainHand;
     public SteamVR_TrackedObject offHand;
 
-    private SteamVR_Controller.Device mainController {  get { return SteamVR_Controller.Input((int)mainHand.index); } }
-    private SteamVR_Controller.Device offController { get { return SteamVR_Controller.Input((int)offHand.index); } }
+    private SteamVR_Controller.Device mainController {
+        get
+        {
+            try
+            {
+                return SteamVR_Controller.Input((int)mainHand.index);
+            }
+            catch (System.IndexOutOfRangeException)
+            {
+                return null;
+            }
+        }
+    }
+    private SteamVR_Controller.Device offController {
+        get
+        {
+            try
+            {
+                return SteamVR_Controller.Input((int)offHand.index);
+            }
+            catch (System.IndexOutOfRangeException)
+            {
+                return null;
+            }
+        }
+    }
 
     public static Vector3 mousePosition = Vector3.zero;
 
@@ -48,9 +72,11 @@ public class VRRig : MonoBehaviour {
 
     void DoOffHand()
     {
-        VRControllerState_t controllerState = new VRControllerState_t();
-        if (!OpenVR.System.GetControllerState((uint)offHand.index, ref controllerState))
+        if(offController == null)
+        {
+            Debug.Log("Controller not initialized");
             return;
+        }
         if (offController.GetPress(SteamVR_Controller.ButtonMask.Trigger) && offController.GetPressUp(SteamVR_Controller.ButtonMask.Touchpad))
         {
             float input = offController.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad).y;
@@ -65,9 +91,11 @@ public class VRRig : MonoBehaviour {
 
     public static Vector2 GetOffHandMoveVector()
     {
-        VRControllerState_t controllerState = new VRControllerState_t();
-        if (!OpenVR.System.GetControllerState((uint)instance.offHand.index, ref controllerState))
+        if (instance.offController == null)
+        {
+            Debug.Log("Controller not initialized");
             return Vector2.zero;
+        }
 
         if (!instance.offController.GetPress(SteamVR_Controller.ButtonMask.Touchpad) || instance.offController.GetPress(SteamVR_Controller.ButtonMask.Trigger))
             return Vector2.zero;
@@ -81,9 +109,11 @@ public class VRRig : MonoBehaviour {
     ActorSystem.Actor lastActor = null;
     void DoMainHand()
     {
-        VRControllerState_t controllerState = new VRControllerState_t();
-        if (!OpenVR.System.GetControllerState((uint)mainHand.index, ref controllerState))
+        if(mainController == null)
+        {
+            Debug.Log("Controller not initialized");
             return;
+        }
 
         Ray ray = new Ray(mainHand.transform.position, mainHand.transform.forward);
         RaycastHit hit;
