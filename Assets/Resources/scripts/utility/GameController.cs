@@ -7,7 +7,7 @@ using Valve.VR;
 // Game controller class
 public class GameController : MonoBehaviour {
 
-    private static bool vrEnabled = true;
+    private static bool vrEnabled = false;
     private static Transform standardCameraRig;
     private static Transform vrCameraRig;
     public static bool VREnabled

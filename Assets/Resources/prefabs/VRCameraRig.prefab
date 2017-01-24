@@ -41,6 +41,7 @@ GameObject:
   - 23: {fileID: 23000011032245778}
   - 33: {fileID: 33000010932520034}
   - 114: {fileID: 114000011617459044}
+  - 114: {fileID: 114000011161525868}
   m_Layer: 0
   m_Name: VRCameraRig
   m_TagString: VRCamera
@@ -57,6 +58,8 @@ GameObject:
   m_Component:
   - 4: {fileID: 4000011370683024}
   - 114: {fileID: 114000013952522852}
+  - 114: {fileID: 114000010637373030}
+  - 114: {fileID: 114000012311635082}
   m_Layer: 0
   m_Name: Controller (right)
   m_TagString: Untagged
@@ -320,7 +323,7 @@ Camera:
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
-  m_TargetEye: 3
+  m_TargetEye: 0
   m_HDR: 0
   m_OcclusionCulling: 0
   m_StereoConvergence: 10
@@ -376,6 +379,38 @@ Behaviour:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010503408272}
   m_Enabled: 1
+--- !u!114 &114000010637373030
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011903174672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4e8a839a7c5b7e4580c59e305fb5f01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  active: 1
+  color: {r: 0, g: 0, b: 0, a: 0}
+  thickness: 0.002
+  holder: {fileID: 0}
+  pointer: {fileID: 0}
+  addRigidBody: 0
+  reference: {fileID: 0}
+--- !u!114 &114000011161525868
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011613633598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5da514555eefe7419d078cdb82378f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  follow: {fileID: 0}
+  mainHand: {fileID: 114000013952522852}
+  offHand: {fileID: 114000012350161532}
 --- !u!114 &114000011440479292
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -414,6 +449,19 @@ MonoBehaviour:
   - {x: 1.65, y: 0.01, z: -1.275}
   - {x: -1.65, y: 0.01, z: -1.275}
   - {x: -1.65, y: 0.01, z: 1.275}
+--- !u!114 &114000012311635082
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011903174672}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24c7d7d77dd0d2a4b8e1ad129b170ee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teleportOnClick: 1
+  teleportType: 0
 --- !u!114 &114000012350161532
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -487,6 +535,7 @@ MonoBehaviour:
   left: {fileID: 1000014093372916}
   right: {fileID: 1000011903174672}
   objects: []
+  assignAllBeforeIdentified: 0
 --- !u!114 &114000013431299018
 MonoBehaviour:
   m_ObjectHideFlags: 1
