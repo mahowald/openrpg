@@ -154,7 +154,14 @@ public class VRRig : MonoBehaviour {
                     EventManager.TriggerEvent<ActorSystem.Actor>("ActorClicked", actor);
                 }
                 else // check that we didn't click on an actor
-                    EventManager.TriggerEvent<Vector3>("MouseClickLocation3D", hit.point);
+                {
+                    // TODO: this should go into the GameController logic instead. 
+                    Geometry.Locatable target = new Geometry.Locatable();
+                    target.Position = hit.point;
+                    target.Direction = Vector3.zero;
+                    ActorSystem.IAction action = new ActorSystem.LocatableEmptyAction(GameController.PlayerActor, target);
+                    EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
+                }
 
             }
 

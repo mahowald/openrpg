@@ -11,6 +11,13 @@ namespace Events
         void RemoveListener(object argument);
     }
 
+    public interface ITwoArgEvent
+    {
+        void Invoke(object argument1, object argument2);
+        void AddListener(object argument);
+        void RemoveListener(object argument);
+    }
+
     public class GenericEvent<T> : UnityEvent<T>, IOneArgEvent
     {
         public void Invoke(object argument)
@@ -28,6 +35,24 @@ namespace Events
             base.RemoveListener((UnityAction<T>)listener);
         }
         
+    }
+
+    public class GenericEvent<T0, T1> : UnityEvent<T0, T1>, ITwoArgEvent
+    {
+        public void Invoke(object argument1, object argument2)
+        {
+            base.Invoke((T0)argument1, (T1)argument2);
+        }
+
+        public void AddListener(object listener)
+        {
+            base.AddListener((UnityAction<T0, T1>)listener);
+        }
+
+        public void RemoveListener(object listener)
+        {
+            base.RemoveListener((UnityAction<T0, T1>)listener);
+        }
     }
 
     // Here we will define all of our event types...

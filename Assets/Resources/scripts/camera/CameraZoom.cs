@@ -9,23 +9,23 @@ namespace CameraUtilities
         public Transform zoomIn;
         public Transform zoomOut;
 
-        private Camera camera;
+        private Camera mycamera;
 
         private float orthographicSize = 5f;
 
         // Use this for initialization
         void Start()
         {
-            camera = this.gameObject.GetComponent<Camera>();
-            fov = camera.fieldOfView;
-            aspect = camera.aspect;
-            near = camera.nearClipPlane;
-            far = camera.farClipPlane;
+            mycamera = this.gameObject.GetComponent<Camera>();
+            fov = mycamera.fieldOfView;
+            aspect = mycamera.aspect;
+            near = mycamera.nearClipPlane;
+            far = mycamera.farClipPlane;
             aspect = (float)Screen.width / (float)Screen.height;
             ortho = Matrix4x4.Ortho(-1f* orthographicSize*aspect, 1f* orthographicSize* aspect, -1f * orthographicSize, 1f * orthographicSize, near, far);
-            // perspective = camera.projectionMatrix; <-- somehow this doesn't work quite right
+            // perspective = mycamera.projectionMatrix; <-- somehow this doesn't work quite right
             perspective = Matrix4x4.Perspective(fov, aspect, near, far);
-            camera.projectionMatrix = perspective;
+            mycamera.projectionMatrix = perspective;
         }
 
         // Update is called once per frame
@@ -91,16 +91,16 @@ namespace CameraUtilities
             float startTime = Time.time;
             while (Time.time - startTime < duration)
             {
-                camera.projectionMatrix = MatrixLerp(src, dest, (Time.time - startTime) / duration);
+                mycamera.projectionMatrix = MatrixLerp(src, dest, (Time.time - startTime) / duration);
                 yield return 1;
             }
-            camera.projectionMatrix = dest;
+            mycamera.projectionMatrix = dest;
         }
 
         public Coroutine BlendToMatrix(Matrix4x4 targetMatrix, float duration)
         {
             StopAllCoroutines();
-            return StartCoroutine(LerpFromTo(camera.projectionMatrix, targetMatrix, duration));
+            return StartCoroutine(LerpFromTo(mycamera.projectionMatrix, targetMatrix, duration));
         }
     }
 }

@@ -108,7 +108,8 @@ public class GameController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        Do3DMouseSelect();
+        if (!VREnabled)
+            Do3DMouseSelect();
         TogglePause();
         ToggleViewMode();
 	}
@@ -190,10 +191,17 @@ public class GameController : MonoBehaviour {
                     lastActor = null;
                 }
 
-                if (Input.GetMouseButtonDown(0) && !SelectorBase.CurrentlySelecting)
+                // right-click to give move orders.
+                if (Input.GetMouseButtonDown(1) && !SelectorBase.CurrentlySelecting)
                 {
                     if (actor == null) // check that we didn't click on an actor
-                        EventManager.TriggerEvent<Vector3>("MouseClickLocation3D", hit.point);
+                    {
+                        Geometry.Locatable target = new Geometry.Locatable();
+                        target.Position = hit.point;
+                        target.Direction = Vector3.zero;
+                        ActorSystem.IAction action = new ActorSystem.LocatableEmptyAction(PlayerActor, target);
+                        EventManager.TriggerEvent("DoAction", PlayerActor, action);
+                    }
                 }
             }
             else

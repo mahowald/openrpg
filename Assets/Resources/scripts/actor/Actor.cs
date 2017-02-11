@@ -2,9 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Namespace for Actors and Actions.
+/// </summary>
 namespace ActorSystem
 {
     // Who is controlling this character? (The computer, or the player)
+    /// <summary>
+    /// Determines whether an actor's movement derives from the player or from the computer (AI/NPC).
+    /// </summary>
     public enum MovementController { Computer, Player};
     
     // Collect the attributes of the Actor
@@ -26,6 +32,9 @@ namespace ActorSystem
         }
     }
 
+    /// <summary>
+    /// The basic non-scenery object in the game is an Actor, representing a player or computer-controlled character.
+    /// </summary>
     [RequireComponent (typeof (NavMeshAgent))]
     [RequireComponent (typeof (Animator))]
     [RequireComponent (typeof (Rigidbody))]
@@ -86,6 +95,7 @@ namespace ActorSystem
         private Rigidbody rbody;
 
         // Where to go when we're in click-to-move
+        // TODO: remove this
         private void SetClickDestination(Vector3 targetDestination)
         {
             if (movementController != MovementController.Player)
@@ -95,12 +105,16 @@ namespace ActorSystem
             target.Position = targetDestination;
             target.Direction = Vector3.zero;
             QueuedAction = new LocatableEmptyAction(this, target);
+        }
 
-            // Old way:
-            /**
-            if (movementController == MovementController.Player)
-                Destination = targetDestination;
-             **/
+        // This is how the Actor receives commands from the UI to do things.
+        // Most player character actions come this way, although
+        // we may choose to use a different system for NPCs. 
+        private void DoActionMessage(Actor a, IAction action)
+        {
+            if (this != a)
+                return;
+            QueuedAction = action;
         }
         
         // Set the destination based on keyboard movement
@@ -152,7 +166,8 @@ namespace ActorSystem
             m_TurnAmount = Mathf.Atan2(move.x, move.z);
             m_ForwardAmount = move.z;
 
-            ApplyExtraTurnRotation();
+            if (move.magnitude > 0.1f)    // to stop unneeded rotations: sometimes, after projecting 
+                ApplyExtraTurnRotation(); // onto the plane, the turn amount may be unreasonable.
             // send input and other state parameters to the animator
             UpdateAnimator(move);
         }
@@ -235,15 +250,15 @@ namespace ActorSystem
         {
             EventManager.StartListening("Pause", Pause);
             EventManager.StartListening("Unpause", Unpause);
-            EventManager.StartListening<Vector3>("MouseClickLocation3D", SetClickDestination);
             EventManager.StartListening<Actor>("ActorClicked", ActorClicked);
+            EventManager.StartListening<Actor, IAction>("DoAction", DoActionMessage);
         }
         public void OnDisable()
         {
             EventManager.StopListening("Pause", Pause);
             EventManager.StopListening("Unpause", Unpause);
-            EventManager.StopListening<Vector3>("MouseClickLocation3D", SetClickDestination);
             EventManager.StopListening<Actor>("ActorClicked", ActorClicked);
+            EventManager.StopListening<Actor, IAction>("DoAction", DoActionMessage);
         }
 
         // Detect mouse clicks
