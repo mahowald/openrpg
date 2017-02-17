@@ -266,8 +266,8 @@ namespace ActorSystem
         {
             if(Input.GetMouseButtonUp(0)) // left click
             {
-                if (GameController.VMode != GameController.ViewMode.FreeLook)
-                    EventManager.TriggerEvent<Actor>("ActorClicked", this);
+                // if (GameController.VMode != GameController.ViewMode.FreeLook)
+                //    EventManager.TriggerEvent<Actor>("ActorClicked", this);
             }
             if(Input.GetMouseButtonUp(1)) // right click
             {

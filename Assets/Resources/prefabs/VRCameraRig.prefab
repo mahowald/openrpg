@@ -535,7 +535,7 @@ MonoBehaviour:
   left: {fileID: 1000014093372916}
   right: {fileID: 1000011903174672}
   objects: []
-  assignAllBeforeIdentified: 0
+  assignAllBeforeIdentified: 1
 --- !u!114 &114000013431299018
 MonoBehaviour:
   m_ObjectHideFlags: 1

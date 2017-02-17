@@ -191,6 +191,19 @@ public class GameController : MonoBehaviour {
                     lastActor = null;
                 }
 
+                if (Input.GetMouseButtonDown(0))
+                {
+                    if (actor == null)
+                    {
+                        Vector3 point = hit.point;
+                        EventManager.TriggerEvent("ContextClick", point);
+                    }
+                    else
+                    {
+                        EventManager.TriggerEvent("ContextClick", actor);
+                    }
+                }
+
                 // right-click to give move orders.
                 if (Input.GetMouseButtonDown(1) && !SelectorBase.CurrentlySelecting)
                 {
