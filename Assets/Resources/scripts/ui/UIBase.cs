@@ -1,17 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class UIBase : MonoBehaviour {
 
     private Vector3 pointContext;
     private ActorSystem.Actor actorContext;
 
-    private Canvas canvas;
+    public Camera mycamera;
+    public RectTransform uiPanel;
 
 	// Use this for initialization
 	void Start () {
-        canvas = this.gameObject.GetComponentInChildren<Canvas>();
-        canvas.gameObject.SetActive(false);
+        uiPanel.gameObject.SetActive(false);
 	}
 	
 	// Update is called once per frame
@@ -19,24 +20,26 @@ public class UIBase : MonoBehaviour {
 	
 	}
 
-    void Relocate(Vector3 dest)
+    void Relocate(Vector3 dest, Vector3 offset)
     {
-        this.transform.position = dest;
+        uiPanel.anchoredPosition = mycamera.WorldToScreenPoint(dest + offset);
     }
 
     void ActorSelected(ActorSystem.Actor actor)
     {
-        canvas.gameObject.SetActive(true);
         actorContext = actor;
-        Relocate(actor.Position);
+        Vector3 offset = new Vector3(0f, 2f, 0f);
+        uiPanel.gameObject.SetActive(true);
+        Relocate(actor.Position, offset);
     }
 
     void PointSelected(Vector3 point)
     {
-        canvas.gameObject.SetActive(true);
         pointContext = point;
         actorContext = null;
-        Relocate(point);
+        Vector3 offset = Vector3.zero;
+        uiPanel.gameObject.SetActive(true);
+        Relocate(point, offset);
     }
 
     // Subscribe/Unsubscribe to our events
@@ -58,7 +61,42 @@ public class UIBase : MonoBehaviour {
         {
             EventManager.TriggerEvent("ActorClicked", actorContext);
             actorContext = null;
-            canvas.gameObject.SetActive(false);
+            uiPanel.gameObject.SetActive(false);
+        }
+    }
+
+    public void Move()
+    {
+        Geometry.Locatable target = new Geometry.Locatable();
+        if (actorContext == null)
+        {
+            target.Position = pointContext;
+        }
+        else
+        {
+            target.Position = actorContext.Position;
+        }
+        target.Direction = Vector3.zero;
+        ActorSystem.IAction action = new ActorSystem.LocatableEmptyAction(GameController.PlayerActor, target);
+        EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
+        uiPanel.gameObject.SetActive(false);
+    }
+
+    public void Attack()
+    {
+        if (actorContext != null)
+        {
+            // TODO: Think about how this should really be done.
+            ActorSystem.SingleTargetDamageActionPrototype actionPrototype = new ActorSystem.SingleTargetDamageActionPrototype();
+            actionPrototype.Cooldown = new Expression("0");
+            actionPrototype.Cost = new Dictionary<string, Expression>();
+            actionPrototype.Damage = new Dictionary<string, Expression>(); //  { { "health", new Expression("5") } };
+            actionPrototype.Range = new Expression("1");
+            actionPrototype.Animation = ActorSystem.ActionAnimation.BasicAttack;
+            ActorSystem.IAction action = actionPrototype.Instantiate(GameController.PlayerActor, actorContext);
+
+            EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
+            uiPanel.gameObject.SetActive(false);
         }
     }
 }
