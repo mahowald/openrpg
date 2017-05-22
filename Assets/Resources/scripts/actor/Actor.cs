@@ -16,6 +16,9 @@ namespace ActorSystem
     // Collect the attributes of the Actor
     // e.g. STR, DEX, MAG, WIL, CUN, CON -- basic attributes
     // as well as combat attributes such as hit points, armor, attack, defense, etc.
+    /// <summary>
+    /// A struct that captures the attributes of the Actor. 
+    /// </summary>
     public struct Attributes
     {
         public Dictionary<string, float> attributes; // the actual attributes
@@ -44,14 +47,18 @@ namespace ActorSystem
         // The numerical attributes of the actor
         public Attributes attributes; // This should be set on initialization
 
-        // The current position of the actor
+        /// <summary>
+        /// The current position of the actor.
+        /// </summary>
         public Vector3 Position
         {
             get { return this.transform.position; }
         }
 
-        // The current destination of the actor
-        // Setting updates the nav agent as well. 
+        /// <summary>
+        /// The current destination of the actor
+        /// Setting updates the nav agent as well. 
+        /// </summary>
         public Vector3 Destination
         {
             get { return this.destination; }
@@ -62,7 +69,9 @@ namespace ActorSystem
             }
         }
 
-        // The direction of the actor
+        /// <summary>
+        /// The direction of the actor, i.e., what direction the Actor is facing.
+        /// </summary> 
         public Vector3 Direction
         {
             get { return this.transform.forward; }
@@ -71,8 +80,10 @@ namespace ActorSystem
                 this.transform.forward = value;
             }
         }
-
-        // The radius of the actor's nav mesh agent
+        
+        /// <summary>
+        /// The radius of the actor's nav mesh agent.
+        /// </summary>
         public float Radius
         {
             get { return this.navAgent.radius; }
@@ -80,6 +91,11 @@ namespace ActorSystem
 
         // --- GAME LOGIC --- //
 
+        /// <summary>
+        /// Add an effect to this actor.
+        /// </summary>
+        /// <param name="effect">The effect to add.</param>
+        /// <param name="duration">The duration of the effect (in seconds)</param>
         public void AddEffect(Effect effect, float duration)
         {
             return;
@@ -87,6 +103,9 @@ namespace ActorSystem
 
         // --- NAVIGATION AND MOVEMENT --- //
 
+        /// <summary>
+        /// This actor's MovementController.
+        /// </summary>
         public MovementController movementController = MovementController.Computer;
 
         private NavMeshAgent navAgent;
@@ -110,6 +129,11 @@ namespace ActorSystem
         // This is how the Actor receives commands from the UI to do things.
         // Most player character actions come this way, although
         // we may choose to use a different system for NPCs. 
+        /// <summary>
+        /// This method is executed upon receipt of an Action message.
+        /// </summary>
+        /// <param name="a">The Actor to execute the action.</param>
+        /// <param name="action">The action to execute.</param>
         private void DoActionMessage(Actor a, IAction action)
         {
             if (this != a)
@@ -155,6 +179,16 @@ namespace ActorSystem
 
         float m_ForwardAmount;
         float m_TurnAmount;
+        /// <summary>
+        /// Converts the world-relative move vector into a local-relative
+        /// turn amount and forward movement amount required to head
+        /// in the desired direction.
+        /// 
+        /// These directions are saved to the variables m_ForwardAmount and m_TurnAmount.
+        /// 
+        /// This is then passed to the AnimatorController.
+        /// </summary>
+        /// <param name="move">The movement vector.</param>
         public void Move(Vector3 move)
         {
             // convert the world relative moveInput vector into a local-relative
@@ -182,6 +216,11 @@ namespace ActorSystem
             float turnSpeed = Mathf.Lerp(m_StationaryTurnSpeed, m_MovingTurnSpeed, m_ForwardAmount);
             transform.Rotate(0, m_TurnAmount * turnSpeed * Time.deltaTime, 0);
         }
+        /// <summary>
+        /// Updates the animator's movement based on the values of the variables
+        /// m_ForwardAmount and m_TurnAmount. 
+        /// </summary>
+        /// <param name="move">A </param>
         void UpdateAnimator(Vector3 move)
         {
             if (!paused)
@@ -192,6 +231,11 @@ namespace ActorSystem
             }
         }
 
+        /// <summary>
+        /// Overrides the default root motion of the animator. The main use of this is to scale the
+        /// Actor's movement speed by the m_MoveSpeedMultiplier variable, and to drive the
+        /// Actor's transform position by the animator (instead of the nav agent).
+        /// </summary>
         public void OnAnimatorMove()
         {
             // we implement this function to override the default root motion.
@@ -226,6 +270,10 @@ namespace ActorSystem
         private Vector3 movingVelocity = Vector3.zero;
         private float animatorSpeed = 1f;
         bool paused = false;
+
+        /// <summary>
+        /// Pause the Actor: freeze all movement.
+        /// </summary>
         public void Pause()
         {
             navAgent.Stop();
@@ -236,6 +284,9 @@ namespace ActorSystem
             paused = true;
         }
 
+        /// <summary>
+        /// Unpause the Actor: resume all movement after pausing.
+        /// </summary>
         public void Unpause()
         {
             navAgent.Resume();
@@ -261,7 +312,9 @@ namespace ActorSystem
             EventManager.StopListening<Actor, IAction>("DoAction", DoActionMessage);
         }
 
-        // Detect mouse clicks
+        /// <summary>
+        /// Detect mouse clicks.
+        /// </summary>
         public void OnMouseOver()
         {
             if(Input.GetMouseButtonUp(0)) // left click
@@ -292,6 +345,10 @@ namespace ActorSystem
         // --- VISUAL EFFECTS --- //
         private Highlighter highlighter;
         
+        /// <summary>
+        /// A property to indicate whether this Actor is highlighted or not.
+        /// Set to True to highlight the Actor, and set to False to de-highlight.
+        /// </summary>
         public bool Highlighted
         {
             set
@@ -307,6 +364,11 @@ namespace ActorSystem
         // -- ACTION HANDLING -- //
         private ActionHandler actionHandler;
 
+        /// <summary>
+        /// The next Action the Actor intends to perform.
+        /// Setting this variable overrides the Actor's
+        /// current command. 
+        /// </summary>
         public IAction QueuedAction
         {
             get { return actionHandler.queuedAction; }
