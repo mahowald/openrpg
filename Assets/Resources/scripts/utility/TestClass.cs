@@ -50,12 +50,10 @@ public class TestClass : MonoBehaviour {
             }
         };
 
-        var serializer = new Serializer();
-        var stringBuilder = new StringBuilder();
-        var stringWriter = new StringWriter(stringBuilder);
-        serializer.Serialize(stringWriter, attackPrototype);
+        var serializer = new SerializerBuilder().Build();
+        var yaml = serializer.Serialize(attackPrototype);
 
-        Debug.Log(stringBuilder);
+        Debug.Log(yaml);
 
         var actionMapperStr = @"---
 actionBag:
@@ -76,17 +74,36 @@ actionBag:
 damage:
     health: -5
 animation: BasicAttack
-cooldown: {}
+cooldown: 0
 effects: {}
 cost: {}
-range: {}
-success_chance: {}
-critical_chance: {}
+range: 1
+success_chance: 0
+critical_chance: 0
 critical_effects: {}
 ";
-        var input = new StringReader(prototypestr);
-        var deserializer = new Deserializer();
-        var newmapper = deserializer.Deserialize<ActorSystem.SingleTargetDamageActionPrototype>(input);
+
+        /** this is equivalent to
+        damage:
+        health:
+            Equation: -5
+        animation: BasicAttack
+        cooldown: {}
+        effects: {}
+        cost: {}
+        range: {}
+        success_chance: {}
+        critical_chance: {}
+        critical_effects: {}
+
+
+        **/
+
+
+        var deserializer = new DeserializerBuilder().Build();
+        var prototyped = deserializer.Deserialize<ActorSystem.SingleTargetDamageActionPrototype>(prototypestr);
+
+        Debug.Log(serializer.Serialize(prototyped));
         
     }
 

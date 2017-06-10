@@ -10,9 +10,32 @@ public class Expression {
     // When we get a new expression, we store it in postfix notation
     private Queue<string> pfEquation;
 
+    // the equation as a string
+    private string equation;
+
     public Expression(string equation)
     {
         pfEquation = Expression.ConvertToPostfix(Expression.SplitExpression(equation));
+        this.equation = equation;
+    }
+
+    public Expression()
+    {
+        pfEquation = null;
+        equation = null;
+    }
+
+    public string Equation
+    {
+        get
+        {
+            return equation;
+        }
+        set
+        {
+            pfEquation = Expression.ConvertToPostfix(Expression.SplitExpression(value));
+            this.equation = value;
+        }
     }
 
     public float Evaluate(Dictionary<string, float> variables)

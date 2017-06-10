@@ -1,16 +1,16 @@
 //  This file is part of YamlDotNet - A .NET library for YAML.
 //  Copyright (c) Antoine Aubry and contributors
-    
+
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of
 //  this software and associated documentation files (the "Software"), to deal in
 //  the Software without restriction, including without limitation the rights to
 //  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 //  of the Software, and to permit persons to whom the Software is furnished to do
 //  so, subject to the following conditions:
-    
+
 //  The above copyright notice and this permission notice shall be included in all
 //  copies or substantial portions of the Software.
-    
+
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,28 +20,49 @@
 //  SOFTWARE.
 
 using System;
+using System.Runtime.Serialization;
 
-namespace YamlDotNet.Serialization
+namespace YamlDotNet.Core
 {
     /// <summary>
-    /// Instructs the <see cref="Deserializer"/> to use a different field name for serialization.
+    /// Exception that is thrown when an infinite recursion is detected.
     /// </summary>
-    [Obsolete("Please use YamlMember instead")]
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
-    public class YamlAliasAttribute : Attribute
+    [Serializable]
+    public class MaximumRecursionLevelReachedException : YamlException
     {
         /// <summary>
-        /// Gets or sets the alias name.
+        /// Initializes a new instance of the <see cref="MaximumRecursionLevelReachedException"/> class.
         /// </summary>
-        public string Alias { get; set; }
+        public MaximumRecursionLevelReachedException()
+        {
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="YamlAliasAttribute" /> class.
+        /// Initializes a new instance of the <see cref="MaximumRecursionLevelReachedException"/> class.
         /// </summary>
-        /// <param name="alias">The alias to use for this field.</param>
-        public YamlAliasAttribute(string alias)
+        /// <param name="message">The message.</param>
+        public MaximumRecursionLevelReachedException(string message)
+            : base(message)
         {
-            Alias = alias;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MaximumRecursionLevelReachedException"/> class.
+        /// </summary>
+        public MaximumRecursionLevelReachedException(Mark start, Mark end, string message)
+            : base(start, end, message)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MaximumRecursionLevelReachedException"/> class.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="inner">The inner.</param>
+        public MaximumRecursionLevelReachedException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+
     }
 }

@@ -19,18 +19,14 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-using System.Collections.Generic;
-using YamlDotNet.Serialization.Converters;
 
-namespace YamlDotNet.Serialization.Utilities
+namespace YamlDotNet.Serialization
 {
-    internal static class YamlTypeConverters
+    /// <summary>
+    /// An empty type for cases where a type needs to be provided but won't be used.
+    /// </summary>
+    public sealed class Nothing
     {
-        private static readonly IEnumerable<IYamlTypeConverter> _builtInTypeConverters = new IYamlTypeConverter[]
-        {
-            new GuidConverter(),
-        };
-
-        public static IEnumerable<IYamlTypeConverter> BuiltInConverters { get { return _builtInTypeConverters; } }
+        private Nothing() { }
     }
 }

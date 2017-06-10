@@ -1,16 +1,16 @@
-//  This file is part of YamlDotNet - A .NET library for YAML.
+﻿//  This file is part of YamlDotNet - A .NET library for YAML.
 //  Copyright (c) Antoine Aubry and contributors
-    
+
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of
 //  this software and associated documentation files (the "Software"), to deal in
 //  the Software without restriction, including without limitation the rights to
 //  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 //  of the Software, and to permit persons to whom the Software is furnished to do
 //  so, subject to the following conditions:
-    
+
 //  The above copyright notice and this permission notice shall be included in all
 //  copies or substantial portions of the Software.
-    
+
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,48 +20,61 @@
 //  SOFTWARE.
 
 using System;
-using System.Runtime.Serialization;
 
 namespace YamlDotNet.Core
 {
     /// <summary>
-    /// The exception that is thrown when a duplicate anchor is detected.
+    /// Keeps track of the <see cref="current"/> recursion level,
+    /// and throws <see cref="MaximumRecursionLevelReachedException"/>
+    /// whenever <see cref="Maximum"/> is reached.
     /// </summary>
-    [Serializable]
-    public class DuplicateAnchorException : YamlException
+    internal class RecursionLevel
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DuplicateAnchorException"/> class.
-        /// </summary>
-        public DuplicateAnchorException()
+        private int current;
+        public int Maximum { get; private set; }
+
+        public RecursionLevel(int maximum)
         {
+            Maximum = maximum;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DuplicateAnchorException"/> class.
+        /// Increments the <see cref="current"/> recursion level,
+        /// and throws <see cref="MaximumRecursionLevelReachedException"/>
+        /// if <see cref="Maximum"/> is reached.
         /// </summary>
-        /// <param name="message">The message.</param>
-        public DuplicateAnchorException(string message)
-            : base(message)
+        public void Increment()
         {
+            if (!TryIncrement())
+            {
+                throw new MaximumRecursionLevelReachedException();
+            }
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DuplicateAnchorException"/> class.
+        /// Increments the <see cref="current"/> recursion level,
+        /// and returns whether <see cref="current"/> is still less than <see cref="Maximum"/>.
         /// </summary>
-        public DuplicateAnchorException(Mark start, Mark end, string message)
-            : base(start, end, message)
+        public bool TryIncrement()
         {
+            if (current < Maximum)
+            {
+                ++current;
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DuplicateAnchorException"/> class.
+        /// Decrements the <see cref="current"/> recursion level.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="inner">The inner.</param>
-        public DuplicateAnchorException(string message, Exception inner)
-            : base(message, inner)
+        public void Decrement()
         {
+            if (current == 0)
+            {
+                throw new InvalidOperationException("Attempted to decrement RecursionLevel to a negative value");
+            }
+            --current;
         }
     }
 }
