@@ -19,7 +19,7 @@ namespace ActorSystem
     /// <summary>
     /// A class to maintain a mapping of contexts to actions.
     /// </summary>
-    public class ActionMapper : Utility.SerializableElement
+    public class ActionMapper : object
     {
 
         // Given a target context, this class should retrieve all of the
@@ -28,12 +28,12 @@ namespace ActorSystem
 
         // We need to generate an action for a given context
         // so probably this should be IActionPrototype
-        [YamlMember(Alias = "actionBag")]
-        public Dictionary<ActionContext, List<IActionPrototype>> actionBag { get; set; }
+        private Dictionary<ActionContext, List<IActionPrototype>> actionBag { get; set; }
 
         public ActionMapper()
         {
             actionBag = new Dictionary<ActionContext, List<IActionPrototype>>();
+            PopulateDefaultActions();
         }
 
         
@@ -47,6 +47,23 @@ namespace ActorSystem
             {
                 actionBag[context] = value;
             }
+        }
+
+        private void PopulateDefaultActions()
+        {
+            var attackPrototype = new SingleTargetDamageActionPrototype();
+            attackPrototype.Cooldown = new Expression("0");
+            attackPrototype.Cost = new Dictionary<string, Expression>();
+            attackPrototype.Damage = new Dictionary<string, Expression>(); //  { { "health", new Expression("5") } };
+            attackPrototype.Range = new Expression("1");
+            attackPrototype.Animation = ActionAnimation.BasicAttack;
+
+            // move prototype
+            var movePrototype = new LocatableEmptyActionPrototype();
+
+            actionBag[ActionContext.Location] = new List<IActionPrototype>() { movePrototype };
+            actionBag[ActionContext.Actor] = new List<IActionPrototype>() { attackPrototype };
+
         }
     
     }

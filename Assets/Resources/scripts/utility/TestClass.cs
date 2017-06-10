@@ -34,22 +34,6 @@ public class TestClass : MonoBehaviour {
         // move prototype
         var movePrototype = new ActorSystem.LocatableEmptyActionPrototype();
 
-
-        ActorSystem.ActionMapper mapper = new ActorSystem.ActionMapper();
-        mapper.actionBag = new Dictionary<ActorSystem.ActionContext, List<ActorSystem.IActionPrototype>>
-        {
-            { ActorSystem.ActionContext.Location, new List<ActorSystem.IActionPrototype>
-                {
-                    movePrototype
-                }
-            },
-            { ActorSystem.ActionContext.Actor, new List<ActorSystem.IActionPrototype>
-                {
-                    attackPrototype
-                }
-            }
-        };
-
         var serializer = new SerializerBuilder().Build();
         var yaml = serializer.Serialize(attackPrototype);
 
@@ -62,12 +46,16 @@ actionBag:
   Actor:
   - damage: {}
     animation: BasicAttack
-    cooldown: {}
+    cooldown:
+      Equation: 0
     effects: {}
     cost: {}
-    range: {}
-    success_chance: {}
-    critical_chance: {}
+    range:
+      Equation: 1
+    success_chance:
+      Equation: 0
+    critical_chance:
+      Equation: 0
     critical_effects: {}
 ";
         var prototypestr = @"

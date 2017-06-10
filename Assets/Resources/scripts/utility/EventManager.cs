@@ -8,6 +8,7 @@ using Tuples;
 // From the Unity tutorial: https://unity3d.com/learn/tutorials/topics/scripting/events-creating-simple-messaging-system
 public class EventManager : MonoBehaviour
 {
+    private bool debug = false;
     private Dictionary<string, UnityEvent> eventDictionary;
     private Queue<UnityEvent> eventQueue;
     private Dictionary<Type, Dictionary<string, Events.IOneArgEvent>> oneArgEventDictionary;
@@ -184,6 +185,8 @@ public class EventManager : MonoBehaviour
 
     public static void TriggerEvent<T>(string eventName, T argument)
     {
+        if(instance.debug)
+            Debug.Log("Event triggered: " + eventName);
         Events.IOneArgEvent thisEvent = null;
         Type mytype = typeof(T);
         if(instance.oneArgEventDictionary.ContainsKey(mytype))
@@ -198,6 +201,8 @@ public class EventManager : MonoBehaviour
 
     public static void TriggerEvent<T1, T2>(string eventName, T1 argument1, T2 argument2)
     {
+        if (instance.debug)
+            Debug.Log("Event triggered: " + eventName);
         Events.ITwoArgEvent thisEvent = null;
         Tuple<Type, Type> mytype = new Tuple<Type, Type>(typeof(T1), typeof(T2));
         if (instance.twoArgEventDictionary.ContainsKey(mytype))
@@ -222,6 +227,8 @@ public class EventManager : MonoBehaviour
     
     public static void TriggerEvent(string eventName)
     {
+        if (instance.debug)
+            Debug.Log("Event triggered: " + eventName);
         UnityEvent thisEvent = null;
         if (instance.eventDictionary.TryGetValue(eventName, out thisEvent))
         {

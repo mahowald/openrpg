@@ -209,11 +209,11 @@ public class GameController : MonoBehaviour {
                 {
                     if (actor == null) // check that we didn't click on an actor
                     {
-                        Geometry.Locatable target = new Geometry.Locatable();
-                        target.Position = hit.point;
-                        target.Direction = Vector3.zero;
-                        ActorSystem.IAction action = new ActorSystem.LocatableEmptyAction(PlayerActor, target);
-                        EventManager.TriggerEvent("DoAction", PlayerActor, action);
+                        EventManager.TriggerEvent("ContextRightClick", hit.point);
+                    }
+                    else
+                    {
+                        EventManager.TriggerEvent("ContextRightClick", actor);
                     }
                 }
             }
@@ -304,13 +304,13 @@ public class GameController : MonoBehaviour {
     public void OnEnable()
     {
         EventManager.StartListening<bool>("Orthographic Mode", SetOrthographicMode);
-        EventManager.StartListening<ActorSystem.Actor>("ActorRightClicked", PlayerActorBasicAttack);
+        // EventManager.StartListening<ActorSystem.Actor>("ActorRightClicked", PlayerActorBasicAttack);
         // EventManager.StartListening<ActorSystem.Actor>("ActorClicked", UpdatePlayerActor);
     }
     public void OnDisable()
     {
         EventManager.StopListening<bool>("Orthographic Mode", SetOrthographicMode);
-        EventManager.StopListening<ActorSystem.Actor>("ActorRightClicked", PlayerActorBasicAttack);
+        // EventManager.StopListening<ActorSystem.Actor>("ActorRightClicked", PlayerActorBasicAttack);
         // EventManager.StopListening<ActorSystem.Actor>("ActorClicked", UpdatePlayerActor);
     }
 

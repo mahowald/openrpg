@@ -324,8 +324,8 @@ namespace ActorSystem
             }
             if(Input.GetMouseButtonUp(1)) // right click
             {
-                if (GameController.VMode != GameController.ViewMode.FreeLook)
-                    EventManager.TriggerEvent<Actor>("ActorRightClicked", this);
+                // if (GameController.VMode != GameController.ViewMode.FreeLook)
+                //    EventManager.TriggerEvent<Actor>("ActorRightClicked", this);
             }
         }
 
@@ -363,6 +363,7 @@ namespace ActorSystem
 
         // -- ACTION HANDLING -- //
         private ActionHandler actionHandler;
+        public ActionMapper actionMapper; // map contexts to actions
 
         /// <summary>
         /// The next Action the Actor intends to perform.
@@ -422,6 +423,7 @@ namespace ActorSystem
             rbody = this.gameObject.GetComponent<Rigidbody>();
             highlighter = new Highlighter(this.gameObject);
             actionHandler = new ActionHandler(this);
+            actionMapper = new ActionMapper();
 
             attributes.attributes = new Dictionary<string, float>();
         }

@@ -29,11 +29,6 @@ namespace UserInterface
 
             // attack prototype
             attackPrototype = new ActorSystem.SingleTargetDamageActionPrototype();
-            attackPrototype.Cooldown = new Expression("0");
-            attackPrototype.Cost = new Dictionary<string, Expression>();
-            attackPrototype.Damage = new Dictionary<string, Expression>(); //  { { "health", new Expression("5") } };
-            attackPrototype.Range = new Expression("1");
-            attackPrototype.Animation = ActorSystem.ActionAnimation.BasicAttack;
 
             // move prototype
             movePrototype = new ActorSystem.LocatableEmptyActionPrototype();
@@ -75,6 +70,18 @@ namespace UserInterface
             ButtonPositioner.layout(buttons);
         }
 
+        void ActorRightSelected(ActorSystem.Actor actor)
+        {
+            actorContext = actor;
+            Attack();
+        }
+
+        void PointRightSelected(Vector3 point)
+        {
+            pointContext = point;
+            Move();
+        }
+
         void PointSelected(Vector3 point)
         {
             pointContext = point;
@@ -101,11 +108,15 @@ namespace UserInterface
         {
             EventManager.StartListening<ActorSystem.Actor>("ContextClick", ActorSelected);
             EventManager.StartListening<Vector3>("ContextClick", PointSelected);
+            EventManager.StartListening<ActorSystem.Actor>("ContextRightClick", ActorRightSelected);
+            EventManager.StartListening<Vector3>("ContextRightClick", PointRightSelected);
         }
         public void OnDisable()
         {
             EventManager.StopListening<ActorSystem.Actor>("ContextClick", ActorSelected);
             EventManager.StopListening<Vector3>("ContextClick", PointSelected);
+            EventManager.StopListening<ActorSystem.Actor>("ContextRightClick", ActorRightSelected);
+            EventManager.StopListening<Vector3>("ContextRightClick", PointRightSelected);
         }
 
         // buttons
@@ -117,6 +128,11 @@ namespace UserInterface
                 actorContext = null;
                 uiPanel.gameObject.SetActive(false);
             }
+        }
+
+        public static void PlayerActorBasicAttack(ActorSystem.Actor target)
+        {
+
         }
 
         public void Move()
@@ -131,7 +147,11 @@ namespace UserInterface
                 target.Position = actorContext.Position;
             }
             target.Direction = Vector3.zero;
-            ActorSystem.IAction action = movePrototype.Instantiate(GameController.PlayerActor, target);
+
+            // generate the action from the Actor
+            List<ActorSystem.IActionPrototype> moveActions = GameController.PlayerActor.actionMapper[ActorSystem.ActionContext.Location];
+
+            ActorSystem.IAction action = moveActions[0].Instantiate(GameController.PlayerActor, target);
             EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
             uiPanel.gameObject.SetActive(false);
         }
@@ -140,7 +160,9 @@ namespace UserInterface
         {
             if (actorContext != null)
             {
-                ActorSystem.IAction action = attackPrototype.Instantiate(GameController.PlayerActor, actorContext);
+                // Generate the action from the Actor.
+                List<ActorSystem.IActionPrototype> attackActions = GameController.PlayerActor.actionMapper[ActorSystem.ActionContext.Actor];
+                ActorSystem.IAction action = attackActions[0].Instantiate(GameController.PlayerActor, actorContext);
                 EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
                 uiPanel.gameObject.SetActive(false);
             }
