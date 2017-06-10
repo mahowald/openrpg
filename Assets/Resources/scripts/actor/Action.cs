@@ -77,22 +77,22 @@ namespace ActorSystem
 
     // Action definitions (in YAML) get deserialized into
     // ActionPrototypes. An action prototype then produces the actual action.
-    public interface IActionPrototype<T>
+    public interface IActionPrototype
     {
-        IActionPrototype<T> Deserialize(string input); // Deserialize the prototype from a (YAML) string
-        IAction<T> Instantiate(Actor source, T target); // Create an actual Action from the prototype
+        IActionPrototype Deserialize(string input); // Deserialize the prototype from a (YAML) string
+        IAction Instantiate<T>(Actor source, T target); // Create an actual Action from the prototype
     }
 
-    public class EmptyActionPrototype<T> : Utility.SerializableElement, IActionPrototype<T>
+    public class EmptyActionPrototype : Utility.SerializableElement, IActionPrototype
     {
-        public virtual IAction<T> Instantiate(Actor source, T target)
+        public virtual IAction Instantiate<T>(Actor source, T target)
         {
             return new EmptyAction<T>(source, target);
         }
 
-        public IActionPrototype<T> Deserialize(string s)
+        public IActionPrototype Deserialize(string s)
         {
-            return new CombatActionPrototype<T>();
+            return new EmptyActionPrototype();
         }
     }
 
@@ -113,6 +113,27 @@ namespace ActorSystem
         }
     }
 
+    public class LocatableEmptyActionPrototype : Utility.SerializableElement, IActionPrototype
+    {
+        
+        public LocatableEmptyActionPrototype() { }
+
+        public virtual IAction Instantiate<T>(Actor source, T target)
+        {
+            if(target is ILocatable)
+                return new LocatableEmptyAction(source, target as ILocatable);
+            else
+            {
+                throw new Exception("LocatableEmptyActionPrototype: Target is not ILocatable");
+            }
+        }
+
+        public IActionPrototype Deserialize(string s)
+        {
+            return new LocatableEmptyActionPrototype();
+        }
+    }
+
     public class LocatableEmptyAction : EmptyAction<ILocatable>
     {
         public LocatableEmptyAction(Actor source, ILocatable target) : base(source, target)
@@ -128,7 +149,7 @@ namespace ActorSystem
         }
     }
 
-    public class CombatActionPrototype<T> : Utility.SerializableElement, IActionPrototype<T>
+    public class CombatActionPrototype : Utility.SerializableElement, IActionPrototype
     {
         // The animation to play when doing the action
         private ActionAnimation animation;
@@ -225,14 +246,14 @@ namespace ActorSystem
             range = new Expression("0");
         }
 
-        public virtual IAction<T> Instantiate(Actor source, T target)
+        public virtual IAction Instantiate<T>(Actor source, T target)
         {
             return new CombatAction<T>(source, target, animation, cooldown, effects, cost, successChance, criticalChance, criticalEffects, ranged, range);
         }
 
-        public IActionPrototype<T> Deserialize(string s)
+        public IActionPrototype Deserialize(string s)
         {
-            return new CombatActionPrototype<T>();
+            return new CombatActionPrototype();
         }
 
     }
@@ -343,7 +364,7 @@ namespace ActorSystem
         }
     }
 
-    public class SingleTargetDamageActionPrototype : CombatActionPrototype<Actor>, IActionPrototype<Actor>
+    public class SingleTargetDamageActionPrototype : CombatActionPrototype, IActionPrototype
     {
         private Dictionary<string, Expression> damage;
         [YamlMember(Alias ="damage")]
@@ -365,10 +386,18 @@ namespace ActorSystem
             damage = new Dictionary<string, Expression>();
         }
 
-        public override IAction<Actor> Instantiate(Actor source, Actor target)
+        public override IAction Instantiate<T>(Actor source, T target)
         {
-            return new SingleTargetDamageAction(source, target, ActionAnimation.BasicAttack, damage, 
-                Cooldown, Effects, Cost, SuccessChance, CriticalChance, criticalBonus, CriticalEffects, Ranged, Range);
+            Actor actor = target as Actor;
+            if(actor != null)
+            {
+                return new SingleTargetDamageAction(source, actor, ActionAnimation.BasicAttack, damage,
+                    Cooldown, Effects, Cost, SuccessChance, CriticalChance, criticalBonus, CriticalEffects, Ranged, Range);
+            }
+            else
+            {
+                throw new Exception("SingleTargetDamageActionPrototype: Target is not an Actor");
+            }
         }
 
     }

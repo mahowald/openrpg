@@ -13,11 +13,83 @@ public class TestClass : MonoBehaviour {
 	void Start () {
         // TestEquationParser();
         // TestActionPrototype();
+        TestSerializeActionMapper();
 	}
 	
     void Update()
     {
     }
+
+    void TestSerializeActionMapper()
+    {
+
+        // attack prototype
+        var attackPrototype = new ActorSystem.SingleTargetDamageActionPrototype();
+        attackPrototype.Cooldown = new Expression("0");
+        attackPrototype.Cost = new Dictionary<string, Expression>();
+        attackPrototype.Damage = new Dictionary<string, Expression>(); //  { { "health", new Expression("5") } };
+        attackPrototype.Range = new Expression("1");
+        attackPrototype.Animation = ActorSystem.ActionAnimation.BasicAttack;
+
+        // move prototype
+        var movePrototype = new ActorSystem.LocatableEmptyActionPrototype();
+
+
+        ActorSystem.ActionMapper mapper = new ActorSystem.ActionMapper();
+        mapper.actionBag = new Dictionary<ActorSystem.ActionContext, List<ActorSystem.IActionPrototype>>
+        {
+            { ActorSystem.ActionContext.Location, new List<ActorSystem.IActionPrototype>
+                {
+                    movePrototype
+                }
+            },
+            { ActorSystem.ActionContext.Actor, new List<ActorSystem.IActionPrototype>
+                {
+                    attackPrototype
+                }
+            }
+        };
+
+        var serializer = new Serializer();
+        var stringBuilder = new StringBuilder();
+        var stringWriter = new StringWriter(stringBuilder);
+        serializer.Serialize(stringWriter, attackPrototype);
+
+        Debug.Log(stringBuilder);
+
+        var actionMapperStr = @"---
+actionBag:
+  Location:
+  - {}
+  Actor:
+  - damage: {}
+    animation: BasicAttack
+    cooldown: {}
+    effects: {}
+    cost: {}
+    range: {}
+    success_chance: {}
+    critical_chance: {}
+    critical_effects: {}
+";
+        var prototypestr = @"
+damage:
+    health: -5
+animation: BasicAttack
+cooldown: {}
+effects: {}
+cost: {}
+range: {}
+success_chance: {}
+critical_chance: {}
+critical_effects: {}
+";
+        var input = new StringReader(prototypestr);
+        var deserializer = new Deserializer();
+        var newmapper = deserializer.Deserialize<ActorSystem.SingleTargetDamageActionPrototype>(input);
+        
+    }
+
     void TestEquationParser()
     {
         

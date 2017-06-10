@@ -15,7 +15,6 @@ public class Expression {
         pfEquation = Expression.ConvertToPostfix(Expression.SplitExpression(equation));
     }
 
-    
     public float Evaluate(Dictionary<string, float> variables)
     {
         return Expression.EvaluateExpression(pfEquation, variables);

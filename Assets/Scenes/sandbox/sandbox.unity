@@ -138,6 +138,16 @@ Prefab:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114000013256903762, guid: 5504441a496c98e46b5f1e39eb3c9b97,
+        type: 2}
+      propertyPath: zoomIn
+      value: 
+      objectReference: {fileID: 325358760}
+    - target: {fileID: 114000013256903762, guid: 5504441a496c98e46b5f1e39eb3c9b97,
+        type: 2}
+      propertyPath: zoomOut
+      value: 
+      objectReference: {fileID: 147542531}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5504441a496c98e46b5f1e39eb3c9b97, type: 2}
   m_IsPrefabParent: 0
@@ -194,12 +204,12 @@ Prefab:
         type: 2}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 1374308086}
+      objectReference: {fileID: 321173950}
     - target: {fileID: 33000010932520034, guid: 183580fb40c532845bbcc862c19a6dea,
         type: 2}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1507104297}
+      objectReference: {fileID: 1491822191}
     - target: {fileID: 114000013320734956, guid: 183580fb40c532845bbcc862c19a6dea,
         type: 2}
       propertyPath: assignAllBeforeIdentified
@@ -208,6 +218,11 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 183580fb40c532845bbcc862c19a6dea, type: 2}
   m_IsPrefabParent: 0
+--- !u!4 &147542531 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 4000013636712126, guid: 5504441a496c98e46b5f1e39eb3c9b97,
+    type: 2}
+  m_PrefabInternal: {fileID: 82833807}
 --- !u!1 &173950658
 GameObject:
   m_ObjectHideFlags: 0
@@ -492,6 +507,40 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 229998625}
+--- !u!21 &321173950
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  m_SavedProperties:
+    serializedVersion: 2
+    m_TexEnvs:
+    - first:
+        name: _MainTex
+      second:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - first:
+        name: PixelSnap
+      second: 0
+    m_Colors:
+    - first:
+        name: _Color
+      second: {r: 1, g: 1, b: 1, a: 1}
+--- !u!4 &325358760 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 4000013148525088, guid: 5504441a496c98e46b5f1e39eb3c9b97,
+    type: 2}
+  m_PrefabInternal: {fileID: 82833807}
 --- !u!1 &442027658
 GameObject:
   m_ObjectHideFlags: 0
@@ -1396,7 +1445,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf56244c45305a746a868847b78ff657, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actor1: {fileID: 173950662}
+  actor1: {fileID: 1233006027}
 --- !u!4 &1207980665
 Transform:
   m_ObjectHideFlags: 0
@@ -1443,6 +1492,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 946e77d2ad1e2ee4a8e06958ca7a0fe0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1233006027 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114000014022433954, guid: 5ff6f5f2c3ecaee4dae1a900bd6f1ad8,
+    type: 2}
+  m_PrefabInternal: {fileID: 1718326381}
+  m_Script: {fileID: 11500000, guid: f35d8069b0e17cc419f9a4a001d3f388, type: 3}
 --- !u!1001 &1275901527
 Prefab:
   m_ObjectHideFlags: 0
@@ -1690,35 +1745,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
---- !u!21 &1374308086
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 5
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  m_SavedProperties:
-    serializedVersion: 2
-    m_TexEnvs:
-    - first:
-        name: _MainTex
-      second:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - first:
-        name: PixelSnap
-      second: 0
-    m_Colors:
-    - first:
-        name: _Color
-      second: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1391073721
 GameObject:
   m_ObjectHideFlags: 0
@@ -1813,7 +1839,7 @@ Projector:
   m_IgnoreLayers:
     serializedVersion: 2
     m_Bits: 256
---- !u!43 &1507104297
+--- !u!43 &1491822191
 Mesh:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}

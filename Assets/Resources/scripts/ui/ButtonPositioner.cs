@@ -28,11 +28,7 @@ namespace UserInterface
             List<Vector2> arcPos = arcPositions(items.Count);
             // scale by the side length, and then offset each button by their center
             arcPos = transform(arcPos, new Vector4(2f*radius, 0f, 0f, 2f*radius), new Vector2(-1*maxWidth, -1*maxHeight));
-
-            foreach(Vector2 pos in arcPos)
-            {
-                Debug.Log(pos);
-            }
+            
 
             for(int i = 0; i < items.Count; i++)
             {
@@ -66,7 +62,7 @@ namespace UserInterface
                 float angle = i * baseangle;
                 float sine = Mathf.Sin(angle);
                 float cosine = Mathf.Cos(angle);
-                positions[i] = new Vector2(cosine, sine);
+                positions[i] = new Vector2(sine, cosine);
             }
 
             return positions;
