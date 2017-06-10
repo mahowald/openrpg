@@ -128,6 +128,9 @@ critical_effects: {}
 
         string output = "";
         Queue<string> eqQueue = Expression.ConvertToPostfix(toParse);
+
+        Debug.Log(Expression.ConvertToInfix(eqQueue));
+
         float value = Expression.EvaluateExpression(eqQueue, variables);
 
         foreach (string elem in toParse)
@@ -140,6 +143,26 @@ critical_effects: {}
             output += eqQueue.Dequeue();
         }
         Debug.Log(output + " = " + value.ToString());
+
+        List<string> toParse2 = Expression.SplitExpression("1 + if( (2+3), 4, 5) - 6"); // = -1
+        Queue<string> eqQueue2 = Expression.ConvertToPostfix(toParse2);
+        float value2 = Expression.EvaluateExpression(eqQueue2);
+        string out2 = "";
+        foreach(string x in toParse2)
+        {
+            out2 += x + " ";
+        }
+        out2 += "--> ";
+        while (eqQueue2.Count > 0)
+        {
+            out2 += eqQueue2.Dequeue() + " ";
+        }
+        out2 += " = " + value2.ToString();
+        Debug.Log(out2);
+
+        Debug.Log(new Expression("max(2,3)").Evaluate()); // 3
+        Debug.Log(new Expression("1 + pi()").Evaluate()); // 4.14159
+        Debug.Log(new Expression("logit(0)").Evaluate()); // 0.5
     }
     
     void TestActionPrototype()
