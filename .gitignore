@@ -51,6 +51,11 @@ ehthumbs.db
 [Ss][Aa][Hh]otswap
 
 # =============== #
+# Custom Assets   #
+# =============== #
+[Aa]ssets/Resources/shared_materials/cgtextures/
+
+# =============== #
 #     Builds      #
 # =============== #
 [Bb]uilds/
