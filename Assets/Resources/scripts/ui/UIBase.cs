@@ -7,6 +7,8 @@ namespace UserInterface
     public class UIBase : MonoBehaviour
     {
 
+        public DynamicButton genericButton;
+
         private Vector3 pointContext;
         private ActorSystem.Actor actorContext;
 
@@ -21,6 +23,8 @@ namespace UserInterface
         private ActorSystem.LocatableEmptyActionPrototype movePrototype;
         private ActorSystem.SingleTargetDamageActionPrototype attackPrototype;
 
+        private List<DynamicButton> buttonPool;
+
         // Use this for initialization
         void Start()
         {
@@ -34,7 +38,13 @@ namespace UserInterface
             movePrototype = new ActorSystem.LocatableEmptyActionPrototype();
 
 
+            moveButton.gameObject.SetActive(false);
+            abilityButton.gameObject.SetActive(false);
+            attackButton.gameObject.SetActive(false);
+            swapButton.gameObject.SetActive(false);
             uiPanel.gameObject.SetActive(false);
+
+            buttonPool = new List<DynamicButton>();
         }
 
         // Update is called once per frame
@@ -50,24 +60,28 @@ namespace UserInterface
 
         void ActorSelected(ActorSystem.Actor actor)
         {
+
+            DynamicButton d_attackbutton = Instantiate(genericButton, uiPanel) as DynamicButton;
+            d_attackbutton.Text = "Attack";
+            d_attackbutton.AddListener(Attack);
+            buttonPool.Add(d_attackbutton);
+
+            DynamicButton d_abilitybutton = Instantiate(genericButton, uiPanel) as DynamicButton;
+            d_abilitybutton.Text = "Ability 1";
+            // TODO: Add listener...
+            buttonPool.Add(d_abilitybutton);
+
+            DynamicButton d_swapbutton = Instantiate(genericButton, uiPanel) as DynamicButton;
+            d_swapbutton.Text = "Swap";
+            d_swapbutton.AddListener(Swap);
+            buttonPool.Add(d_swapbutton);
+
             actorContext = actor;
             Vector3 offset = new Vector3(0f, 2f, 0f);
             uiPanel.gameObject.SetActive(true);
             Relocate(actor.Position, offset);
 
-            moveButton.gameObject.SetActive(false);
-            abilityButton.gameObject.SetActive(true);
-            attackButton.gameObject.SetActive(true);
-            swapButton.gameObject.SetActive(true);
-
-            List<RectTransform> buttons = new List<RectTransform>
-            {
-                attackButton,
-                swapButton,
-                abilityButton
-            };
-
-            ButtonPositioner.layout(buttons);
+            ButtonPositioner.layout(buttonPool);
         }
 
         void ActorRightSelected(ActorSystem.Actor actor)
@@ -84,23 +98,25 @@ namespace UserInterface
 
         void PointSelected(Vector3 point)
         {
+
+            DynamicButton d_movebutton = Instantiate(genericButton, uiPanel) as DynamicButton;
+            d_movebutton.Text = "Go Here";
+            d_movebutton.AddListener(Move);
+            buttonPool.Add(d_movebutton);
+
+            DynamicButton d_abilitybutton = Instantiate(genericButton, uiPanel) as DynamicButton;
+            d_abilitybutton.Text = "Ability 1";
+            // TODO: Add listener...
+            buttonPool.Add(d_abilitybutton);
+            
             pointContext = point;
             actorContext = null;
             Vector3 offset = Vector3.zero;
             uiPanel.gameObject.SetActive(true);
             Relocate(point, offset);
 
-            moveButton.gameObject.SetActive(true);
-            abilityButton.gameObject.SetActive(true);
-            attackButton.gameObject.SetActive(false);
-            swapButton.gameObject.SetActive(false);
+            ButtonPositioner.layout(buttonPool);
 
-            List<RectTransform> buttons = new List<RectTransform>
-            {
-                moveButton,
-                abilityButton
-            };
-            ButtonPositioner.layout(buttons);
         }
 
         // Subscribe/Unsubscribe to our events
@@ -127,6 +143,7 @@ namespace UserInterface
                 EventManager.TriggerEvent("ActorClicked", actorContext);
                 actorContext = null;
                 uiPanel.gameObject.SetActive(false);
+                ClearButtonPool();
             }
         }
 
@@ -154,6 +171,7 @@ namespace UserInterface
             ActorSystem.IAction action = moveActions[0].Instantiate(GameController.PlayerActor, target);
             EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
             uiPanel.gameObject.SetActive(false);
+            ClearButtonPool();
         }
 
         public void Attack()
@@ -165,7 +183,17 @@ namespace UserInterface
                 ActorSystem.IAction action = attackActions[0].Instantiate(GameController.PlayerActor, actorContext);
                 EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
                 uiPanel.gameObject.SetActive(false);
+                ClearButtonPool();
             }
+        }
+
+        public void ClearButtonPool()
+        {
+            foreach(DynamicButton btn in buttonPool)
+            {
+                Destroy(btn.gameObject);
+            }
+            buttonPool.Clear();
         }
     }
 }

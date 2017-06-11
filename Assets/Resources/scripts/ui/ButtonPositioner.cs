@@ -7,6 +7,16 @@ namespace UserInterface
     // nicely layout buttons on a canvas
     public static class ButtonPositioner
     {
+        public static void layout(List<DynamicButton> items)
+        {
+            List<RectTransform> rectitems = new List<RectTransform>();
+            foreach(DynamicButton btn in items)
+            {
+                rectitems.Add(btn.RectTransform);
+            }
+            layout(rectitems);
+        }
+
         public static void layout(List<RectTransform> items)
         {
             
