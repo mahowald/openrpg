@@ -58,8 +58,76 @@ namespace UserInterface
             uiPanel.anchoredPosition = mycamera.WorldToScreenPoint(dest + offset);
         }
 
+        void ContextClick(ActorSystem.Actor actor)
+        {
+            actorContext = actor;
+            GenerateButtonPool(ActorSystem.ActionContext.Actor, actor.Position);
+        }
+
+        void ContextClick(Vector3 location)
+        {
+            actorContext = null;
+            pointContext = location;
+            GenerateButtonPool(ActorSystem.ActionContext.Location, location);
+        }
+
+        void GenerateButtonPool(ActorSystem.ActionContext context, Vector3 location)
+        {
+            ClearButtonPool();
+            List<ActorSystem.IActionPrototype> actions = GameController.PlayerActor.actionMapper[context];
+
+            ILocatable target = null;
+            switch (context)
+            {
+                case ActorSystem.ActionContext.Actor:
+                    target = actorContext;
+                    break;
+                case ActorSystem.ActionContext.Location:
+                    Geometry.Locatable locator = new Geometry.Locatable();
+                    locator.Position = location;
+                    target = locator;
+                    break;
+            }
+
+            // Create buttons from each action
+            foreach(ActorSystem.IActionPrototype protoaction in actions)
+            {
+                DynamicButton d_actionbutton = Instantiate(genericButton, uiPanel) as DynamicButton;
+                d_actionbutton.Text = protoaction.Name;
+                UnityEngine.Events.UnityAction btn_fcn = () => {
+                    ActorSystem.IAction action = null;
+                    action = protoaction.Instantiate(GameController.PlayerActor, target);
+                    EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
+                    uiPanel.gameObject.SetActive(false);
+                    ClearButtonPool();
+                };
+                d_actionbutton.AddListener(btn_fcn);
+                buttonPool.Add(d_actionbutton);
+            }
+            
+            // add the swap button
+            if(context == ActorSystem.ActionContext.Actor)
+            {
+                DynamicButton d_swapbutton = Instantiate(genericButton, uiPanel) as DynamicButton;
+                d_swapbutton.Text = "Swap";
+                d_swapbutton.AddListener(Swap);
+                buttonPool.Add(d_swapbutton);
+            }
+
+            Vector3 offset = Vector3.zero;
+            if (context == ActorSystem.ActionContext.Actor)
+                offset = new Vector3(0f, 2f, 0f);
+            
+            uiPanel.gameObject.SetActive(true);
+            Relocate(location, offset);
+
+            ButtonPositioner.layout(buttonPool);
+        }
+
+        /**
         void ActorSelected(ActorSystem.Actor actor)
         {
+            ClearButtonPool(); // otherwise buttons will multiply
 
             DynamicButton d_attackbutton = Instantiate(genericButton, uiPanel) as DynamicButton;
             d_attackbutton.Text = "Attack";
@@ -83,6 +151,7 @@ namespace UserInterface
 
             ButtonPositioner.layout(buttonPool);
         }
+    **/
 
         void ActorRightSelected(ActorSystem.Actor actor)
         {
@@ -96,8 +165,10 @@ namespace UserInterface
             Move();
         }
 
+        /**
         void PointSelected(Vector3 point)
         {
+            ClearButtonPool(); // otherwise buttons may multiply
 
             DynamicButton d_movebutton = Instantiate(genericButton, uiPanel) as DynamicButton;
             d_movebutton.Text = "Go Here";
@@ -118,19 +189,20 @@ namespace UserInterface
             ButtonPositioner.layout(buttonPool);
 
         }
+    **/
 
         // Subscribe/Unsubscribe to our events
         public void OnEnable()
         {
-            EventManager.StartListening<ActorSystem.Actor>("ContextClick", ActorSelected);
-            EventManager.StartListening<Vector3>("ContextClick", PointSelected);
+            EventManager.StartListening<ActorSystem.Actor>("ContextClick", ContextClick);
+            EventManager.StartListening<Vector3>("ContextClick", ContextClick);
             EventManager.StartListening<ActorSystem.Actor>("ContextRightClick", ActorRightSelected);
             EventManager.StartListening<Vector3>("ContextRightClick", PointRightSelected);
         }
         public void OnDisable()
         {
-            EventManager.StopListening<ActorSystem.Actor>("ContextClick", ActorSelected);
-            EventManager.StopListening<Vector3>("ContextClick", PointSelected);
+            EventManager.StopListening<ActorSystem.Actor>("ContextClick", ContextClick);
+            EventManager.StopListening<Vector3>("ContextClick", ContextClick);
             EventManager.StopListening<ActorSystem.Actor>("ContextRightClick", ActorRightSelected);
             EventManager.StopListening<Vector3>("ContextRightClick", PointRightSelected);
         }

@@ -25,14 +25,16 @@ public class TestClass : MonoBehaviour {
 
         // attack prototype
         var attackPrototype = new ActorSystem.SingleTargetDamageActionPrototype();
+        attackPrototype.Name = "Attack";
         attackPrototype.Cooldown = new Expression("0");
         attackPrototype.Cost = new Dictionary<string, Expression>();
-        attackPrototype.Damage = new Dictionary<string, Expression>(); //  { { "health", new Expression("5") } };
+        attackPrototype.Damage = new Dictionary<string, Expression>(){ { "health", new Expression("5") } };
         attackPrototype.Range = new Expression("1");
         attackPrototype.Animation = ActorSystem.ActionAnimation.BasicAttack;
 
         // move prototype
         var movePrototype = new ActorSystem.LocatableEmptyActionPrototype();
+        movePrototype.Name = "Move";
 
         var serializer = new SerializerBuilder().Build();
         var yaml = serializer.Serialize(attackPrototype);
@@ -59,6 +61,7 @@ actionBag:
     critical_effects: {}
 ";
         var prototypestr = @"
+name: Attack
 damage:
     health: -5
 animation: BasicAttack

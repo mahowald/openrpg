@@ -52,6 +52,7 @@ namespace ActorSystem
         private void PopulateDefaultActions()
         {
             var attackPrototype = new SingleTargetDamageActionPrototype();
+            attackPrototype.Name = "Attack";
             attackPrototype.Cooldown = new Expression("0");
             attackPrototype.Cost = new Dictionary<string, Expression>();
             attackPrototype.Damage = new Dictionary<string, Expression>(); //  { { "health", new Expression("5") } };
@@ -60,6 +61,7 @@ namespace ActorSystem
 
             // move prototype
             var movePrototype = new LocatableEmptyActionPrototype();
+            movePrototype.Name = "Move";
 
             actionBag[ActionContext.Location] = new List<IActionPrototype>() { movePrototype };
             actionBag[ActionContext.Actor] = new List<IActionPrototype>() { attackPrototype };

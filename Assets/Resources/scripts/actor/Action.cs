@@ -79,6 +79,7 @@ namespace ActorSystem
     // ActionPrototypes. An action prototype then produces the actual action.
     public interface IActionPrototype
     {
+        string Name { get; set; }
         IActionPrototype Deserialize(string input); // Deserialize the prototype from a (YAML) string
         IAction Instantiate<T>(Actor source, T target); // Create an actual Action from the prototype
     }

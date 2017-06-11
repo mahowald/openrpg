@@ -61,7 +61,7 @@ namespace UserInterface
             if(n == 1)
             {
                 List<Vector2> pos = new List<Vector2>(n);
-                pos[0] = new Vector2(0f, 0f);
+                pos.Add(new Vector2(0f, 0f));
                 return pos;
             }
             float baseangle = 2 * Mathf.PI / n;
