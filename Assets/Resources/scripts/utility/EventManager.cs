@@ -185,8 +185,12 @@ public class EventManager : MonoBehaviour
 
     public static void TriggerEvent<T>(string eventName, T argument)
     {
-        if(instance.debug)
-            Debug.Log("Event triggered: " + eventName);
+        if (instance.debug)
+        {
+            System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
+            var caller = stackTrace.GetFrame(1).GetMethod();
+            Debug.Log("Event " + eventName + " triggered by " + caller.ReflectedType.Name);
+        }
         Events.IOneArgEvent thisEvent = null;
         Type mytype = typeof(T);
         if(instance.oneArgEventDictionary.ContainsKey(mytype))
@@ -202,7 +206,11 @@ public class EventManager : MonoBehaviour
     public static void TriggerEvent<T1, T2>(string eventName, T1 argument1, T2 argument2)
     {
         if (instance.debug)
-            Debug.Log("Event triggered: " + eventName);
+        {
+            System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
+            var caller = stackTrace.GetFrame(1).GetMethod();
+            Debug.Log("Event " + eventName + " triggered by " + caller.ReflectedType.Name);
+        }
         Events.ITwoArgEvent thisEvent = null;
         Tuple<Type, Type> mytype = new Tuple<Type, Type>(typeof(T1), typeof(T2));
         if (instance.twoArgEventDictionary.ContainsKey(mytype))
@@ -228,7 +236,11 @@ public class EventManager : MonoBehaviour
     public static void TriggerEvent(string eventName)
     {
         if (instance.debug)
-            Debug.Log("Event triggered: " + eventName);
+        {
+            System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace();
+            var caller = stackTrace.GetFrame(1).GetMethod();
+            Debug.Log("Event " + eventName + " triggered by " + caller.ReflectedType.Name);
+        }
         UnityEvent thisEvent = null;
         if (instance.eventDictionary.TryGetValue(eventName, out thisEvent))
         {

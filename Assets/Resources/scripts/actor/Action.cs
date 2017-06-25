@@ -303,7 +303,7 @@ namespace ActorSystem
             {
                 if(firstRoll){
                     float sroll = rand.Next(0, 100);
-                    float fsuccessChance = successChance.Evaluate();
+                    float fsuccessChance = successChance.Evaluate(variables);
                     isSuccess = (fsuccessChance > sroll);
                     firstRoll = false;
                     return isSuccess;
@@ -320,7 +320,7 @@ namespace ActorSystem
                 if (firstCritRoll)
                 {
                     float sroll = rand.Next(0, 100);
-                    float fcritChance = criticalChance.Evaluate();
+                    float fcritChance = criticalChance.Evaluate(variables);
                     isCriticalSuccess = (fcritChance > sroll);
                     firstCritRoll = false;
                     return isCriticalSuccess;
@@ -349,7 +349,7 @@ namespace ActorSystem
             }
         }
 
-        public override void DoAction()
+        public virtual ActionData SourceActionData()
         {
             ActionData actionData = new ActionData();
             actionData.attributeModifier = new Dictionary<string, float>();
@@ -357,10 +357,16 @@ namespace ActorSystem
             actionData.ranged = ranged;
             actionData.range = range.Evaluate(variables);
 
-            foreach(string attribute in cost.Keys)
+            foreach (string attribute in cost.Keys)
             {
                 actionData.attributeModifier.Add(attribute, -1 * cost[attribute].Evaluate(variables));
             }
+            return actionData;
+        }
+
+        public override void DoAction()
+        {
+            var actionData = this.SourceActionData();
             Source.HandleAction(actionData);
         }
     }
@@ -392,8 +398,8 @@ namespace ActorSystem
             Actor actor = target as Actor;
             if(actor != null)
             {
-                return new SingleTargetDamageAction(source, actor, ActionAnimation.BasicAttack, damage,
-                    Cooldown, Effects, Cost, SuccessChance, CriticalChance, criticalBonus, CriticalEffects, Ranged, Range);
+                return new SingleTargetDamageAction(source, actor, ActionAnimation.BasicAttack, Damage,
+                    Cooldown, Effects, Cost, SuccessChance, CriticalChance, CriticalBonus, CriticalEffects, Ranged, Range);
             }
             else
             {
@@ -434,9 +440,8 @@ namespace ActorSystem
             get { return Target.Position; }
         }
 
-        public override void DoAction()
+        public virtual ActionData GenerateTargetActionData()
         {
-            base.DoAction();
             bool success = IsSuccess;
             bool crit = IsCriticalSuccess;
             ActionData actionData = new ActionData();
@@ -448,14 +453,14 @@ namespace ActorSystem
                 float multiplier = 1f; // TODO: expose this from game variables
                 if (crit)
                     multiplier = criticalBonus.Evaluate(variables);
-                foreach(string attribute in damage.Keys)
+                foreach (string attribute in damage.Keys)
                 {
                     if (actionData.attributeModifier.ContainsKey(attribute))
                         actionData.attributeModifier[attribute] += -1 * multiplier * damage[attribute].Evaluate(variables);
                     else
-                        actionData.attributeModifier.Add(attribute, -1* multiplier*damage[attribute].Evaluate(variables));
+                        actionData.attributeModifier.Add(attribute, -1 * multiplier * damage[attribute].Evaluate(variables));
                 }
-                foreach(Effect effect in effects.Keys)
+                foreach (Effect effect in effects.Keys)
                 {
                     if (actionData.effects.ContainsKey(effect))
                         actionData.effects[effect] = effects[effect].Evaluate(variables);
@@ -464,7 +469,7 @@ namespace ActorSystem
                 }
                 if (crit)
                 {
-                    foreach(Effect effect in criticalEffects.Keys)
+                    foreach (Effect effect in criticalEffects.Keys)
                     {
                         if (actionData.effects.ContainsKey(effect))
                             actionData.effects[effect] = criticalEffects[effect].Evaluate(variables);
@@ -473,7 +478,7 @@ namespace ActorSystem
                     }
                 }
             }
-            else if(crit) // critical hits always do some damage, e.g., "grazed" or "glancing hit"
+            else if (crit) // critical hits always do some damage, e.g., "grazed" or "glancing hit"
             {
                 actionData.attributeModifier = new Dictionary<string, float>();
                 foreach (string attribute in damage.Keys)
@@ -485,8 +490,63 @@ namespace ActorSystem
                         actionData.attributeModifier.Add(attribute, -1 * damage[attribute].Evaluate(variables));
                 }
             }
+
+            return actionData;
+        }
+
+        public override void DoAction()
+        {
+            base.DoAction();
+            ActionData actionData = GenerateTargetActionData();
             Target.HandleAction(actionData);
         }
 
+    }
+
+    public class ProjectileActionPrototype : CombatActionPrototype, IActionPrototype
+    {
+        private ProjectileData projectileData;
+        [YamlMember(Alias = "projectile_data")]
+        public ProjectileData ProjectileData
+        {
+            get { return projectileData;}
+            set { projectileData = value;}
+        }
+
+        public override IAction Instantiate<T>(Actor source, T target)
+        {
+            ILocatable tar = target as ILocatable;
+            if(tar != null)
+            {
+                return new ProjectileAction(source, tar, ActionAnimation.BasicAttack, Cooldown, Effects, Cost,
+                    SuccessChance, CriticalChance, CriticalEffects, Range, ProjectileData);
+            }
+            else
+            {
+                throw new Exception("ProjectileActionPrototype: Target does not implement ILocatable.");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Action that creates a projectile directed to the target
+    /// </summary>
+    public class ProjectileAction : CombatAction<ILocatable>, IAction<ILocatable>
+    {
+        protected ProjectileData projectileData;
+        public ProjectileAction(Actor source, ILocatable target, ActionAnimation animation, Expression cooldown, Dictionary<Effect, Expression> effects,
+            Dictionary<string, Expression> cost, Expression successChance, Expression criticalChance, Dictionary<Effect, Expression> criticalEffects,
+            Expression range, ProjectileData projectileData)
+            : base(source, target, animation, cooldown, effects, cost, successChance, criticalChance, criticalEffects, ranged:true, range:range)
+        {
+            this.projectileData = projectileData;
+        }
+
+        override public void DoAction() 
+        {
+            ActionData sourceActionData = SourceActionData();
+            Source.HandleAction(sourceActionData);
+            Projectile.Create(projectileData, Source, Target);
+        }
     }
 }

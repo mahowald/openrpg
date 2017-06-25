@@ -51,6 +51,7 @@ namespace ActorSystem
 
         private void PopulateDefaultActions()
         {
+            // attack prototype
             var attackPrototype = new SingleTargetDamageActionPrototype();
             attackPrototype.Name = "Attack";
             attackPrototype.Cooldown = new Expression("0");
@@ -59,12 +60,23 @@ namespace ActorSystem
             attackPrototype.Range = new Expression("1");
             attackPrototype.Animation = ActionAnimation.BasicAttack;
 
+            // shoot prototype
+            var shootPrototype = new ProjectileActionPrototype();
+            shootPrototype.Name = "Fire";
+            shootPrototype.Cooldown = new Expression("0");
+            shootPrototype.Cost = new Dictionary<string, Expression>();
+            shootPrototype.Range = new Expression("20");
+            ProjectileData shootData = new ProjectileData();
+            shootData.actionPrototype = new SingleTargetDamageActionPrototype();
+            shootData.speed = 5f;
+            shootPrototype.ProjectileData = shootData;
+
             // move prototype
             var movePrototype = new LocatableEmptyActionPrototype();
             movePrototype.Name = "Move";
 
-            actionBag[ActionContext.Location] = new List<IActionPrototype>() { movePrototype };
-            actionBag[ActionContext.Actor] = new List<IActionPrototype>() { attackPrototype };
+            actionBag[ActionContext.Location] = new List<IActionPrototype>() { movePrototype, shootPrototype };
+            actionBag[ActionContext.Actor] = new List<IActionPrototype>() { attackPrototype, shootPrototype };
 
         }
     

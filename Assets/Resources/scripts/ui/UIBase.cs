@@ -94,9 +94,10 @@ namespace UserInterface
             {
                 DynamicButton d_actionbutton = Instantiate(genericButton, uiPanel) as DynamicButton;
                 d_actionbutton.Text = protoaction.Name;
+                var local_protoaction = protoaction; // need to make a local copy, otherwise every button does the last action available
                 UnityEngine.Events.UnityAction btn_fcn = () => {
                     ActorSystem.IAction action = null;
-                    action = protoaction.Instantiate(GameController.PlayerActor, target);
+                    action = local_protoaction.Instantiate(GameController.PlayerActor, target);
                     EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
                     uiPanel.gameObject.SetActive(false);
                     ClearButtonPool();
