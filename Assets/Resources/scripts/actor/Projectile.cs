@@ -8,6 +8,7 @@ namespace ActorSystem
         public SingleTargetDamageActionPrototype actionPrototype;
         public bool affectedByGravity;
         public float speed;
+        public bool ignoreCollisions;
     }
 
     public class Projectile : MonoBehaviour, IPausable
@@ -32,11 +33,17 @@ namespace ActorSystem
         Vector3 targetPosition;
         Vector3 startPosition;
 
+        float t = 0f; // initial time
+        float v0; // vertical velocity
+        float g = 3f; // gravity
+
         // Use this for initialization
         void Start()
         {
             startPosition = this.transform.position;
             targetPosition = target.Position;
+            float d = Vector3.Distance(startPosition, targetPosition);
+            v0 = 0.5f * g * d / projectileData.speed - (startPosition.y - targetPosition.y) * projectileData.speed/d;
         }
 
         // Update is called once per frame
@@ -47,8 +54,20 @@ namespace ActorSystem
                 return;
             }
 
+            t += Time.deltaTime;
+            this.transform.position += projectileData.speed*this.transform.forward*Time.deltaTime + (v0 - g*t)*this.transform.up*Time.deltaTime;
+        }
 
-            this.transform.position += projectileData.speed*this.transform.forward*Time.deltaTime;
+        // Called upon collision
+        void OnTriggerEnter(Collider other)
+        {
+            Actor actor = other.GetComponent<Actor>();
+            if(actor != null && actor != source)
+            {
+                SingleTargetDamageAction stda = (SingleTargetDamageAction)projectileData.actionPrototype.Instantiate(source, actor);
+                var targetData = stda.GenerateTargetActionData();
+                actor.HandleAction(targetData);
+            }
         }
 
         private bool paused = false;

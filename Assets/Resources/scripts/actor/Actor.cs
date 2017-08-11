@@ -425,7 +425,7 @@ namespace ActorSystem
             actionHandler = new ActionHandler(this);
             actionMapper = new ActionMapper();
 
-            attributes.attributes = new Dictionary<string, float>();
+            attributes.attributes = new Dictionary<string, float> { { "ammo", 5f}, { "health", 10f} };
         }
     
         // Called before the first update

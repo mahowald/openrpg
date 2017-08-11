@@ -64,11 +64,13 @@ namespace ActorSystem
             var shootPrototype = new ProjectileActionPrototype();
             shootPrototype.Name = "Fire";
             shootPrototype.Cooldown = new Expression("0");
-            shootPrototype.Cost = new Dictionary<string, Expression>();
+            shootPrototype.Cost = new Dictionary<string, Expression> { { "ammo", new Expression("1")} };
             shootPrototype.Range = new Expression("20");
             ProjectileData shootData = new ProjectileData();
             shootData.actionPrototype = new SingleTargetDamageActionPrototype();
             shootData.speed = 5f;
+            shootData.affectedByGravity = true;
+            shootData.ignoreCollisions = false;
             shootPrototype.ProjectileData = shootData;
 
             // move prototype

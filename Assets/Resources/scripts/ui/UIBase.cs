@@ -92,18 +92,29 @@ namespace UserInterface
             // Create buttons from each action
             foreach(ActorSystem.IActionPrototype protoaction in actions)
             {
-                DynamicButton d_actionbutton = Instantiate(genericButton, uiPanel) as DynamicButton;
-                d_actionbutton.Text = protoaction.Name;
-                var local_protoaction = protoaction; // need to make a local copy, otherwise every button does the last action available
-                UnityEngine.Events.UnityAction btn_fcn = () => {
-                    ActorSystem.IAction action = null;
-                    action = local_protoaction.Instantiate(GameController.PlayerActor, target);
-                    EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
-                    uiPanel.gameObject.SetActive(false);
-                    ClearButtonPool();
-                };
-                d_actionbutton.AddListener(btn_fcn);
-                buttonPool.Add(d_actionbutton);
+                if (protoaction.Allowed(GameController.PlayerActor))
+                {
+
+                    DynamicButton d_actionbutton = Instantiate(genericButton, uiPanel) as DynamicButton;
+                    d_actionbutton.Text = protoaction.Name;
+                    var local_protoaction = protoaction; // need to make a local copy, otherwise every button does the last action available
+                    UnityEngine.Events.UnityAction btn_fcn = () =>
+                    {
+                        ActorSystem.IAction action = null;
+                        action = local_protoaction.Instantiate(GameController.PlayerActor, target);
+                        EventManager.TriggerEvent("DoAction", GameController.PlayerActor, action);
+                        uiPanel.gameObject.SetActive(false);
+                        ClearButtonPool();
+                    };
+                    d_actionbutton.AddListener(btn_fcn);
+                    buttonPool.Add(d_actionbutton);
+                }
+                else
+                {
+                    DynamicButton d_actionbutton = Instantiate(genericButton, uiPanel) as DynamicButton;
+                    d_actionbutton.Text = "(" + protoaction.Name + ")";
+                    buttonPool.Add(d_actionbutton);
+                }
             }
             
             // add the swap button

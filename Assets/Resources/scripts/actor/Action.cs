@@ -82,6 +82,7 @@ namespace ActorSystem
         string Name { get; set; }
         IActionPrototype Deserialize(string input); // Deserialize the prototype from a (YAML) string
         IAction Instantiate<T>(Actor source, T target); // Create an actual Action from the prototype
+        bool Allowed(Actor source); // check if the actor is allowed to perform this action
     }
 
     public class EmptyActionPrototype : Utility.SerializableElement, IActionPrototype
@@ -94,6 +95,11 @@ namespace ActorSystem
         public IActionPrototype Deserialize(string s)
         {
             return new EmptyActionPrototype();
+        }
+
+        public bool Allowed(Actor source)
+        {
+            return true;
         }
     }
 
@@ -132,6 +138,11 @@ namespace ActorSystem
         public IActionPrototype Deserialize(string s)
         {
             return new LocatableEmptyActionPrototype();
+        }
+
+        public bool Allowed(Actor source)
+        {
+            return true;
         }
     }
 
@@ -255,6 +266,27 @@ namespace ActorSystem
         public IActionPrototype Deserialize(string s)
         {
             return new CombatActionPrototype();
+        }
+
+        // Check whether an action can be performed.
+        public bool Allowed(Actor source)
+        {
+            Dictionary<string, float> variables = new Dictionary<string, float>();
+            Attributes sourceAtts = source.attributes;
+            foreach (string key in sourceAtts.attributes.Keys)
+            {
+                string newname = "source." + key;
+                float value = sourceAtts[key];
+                variables.Add(newname, value);
+            }
+
+            foreach (string key in cost.Keys)
+            {
+                float value = sourceAtts[key] - cost[key].Evaluate(variables);
+                if (value < 0)
+                    return false;
+            }
+            return true;
         }
 
     }
