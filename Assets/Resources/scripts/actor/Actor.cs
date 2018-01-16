@@ -38,7 +38,7 @@ namespace ActorSystem
     /// <summary>
     /// The basic non-scenery object in the game is an Actor, representing a player or computer-controlled character.
     /// </summary>
-    [RequireComponent (typeof (NavMeshAgent))]
+    [RequireComponent (typeof (UnityEngine.AI.NavMeshAgent))]
     [RequireComponent (typeof (Animator))]
     [RequireComponent (typeof (Rigidbody))]
     // [RequireComponent (typeof (Animator))]
@@ -108,7 +108,7 @@ namespace ActorSystem
         /// </summary>
         public MovementController movementController = MovementController.Computer;
 
-        private NavMeshAgent navAgent;
+        private UnityEngine.AI.NavMeshAgent navAgent;
         private Animator animator;
         private Vector3 destination;
         private Rigidbody rbody;
@@ -149,8 +149,8 @@ namespace ActorSystem
             if (movementController == MovementController.Player)
             {
                 Vector3 moveDir = GameController.Get3DMovementDir();
-                NavMeshHit hit;
-                bool validPosition = NavMesh.SamplePosition(transform.position + moveDir, out hit, 1f, NavMesh.AllAreas);
+                UnityEngine.AI.NavMeshHit hit;
+                bool validPosition = UnityEngine.AI.NavMesh.SamplePosition(transform.position + moveDir, out hit, 1f, UnityEngine.AI.NavMesh.AllAreas);
                 foreach(Actor a in GameController.Actors)
                 {
                     if (a == this)
@@ -418,7 +418,7 @@ namespace ActorSystem
         // Called after instantiation, before Start 
         void Awake()
         {
-            navAgent = this.gameObject.GetComponent<NavMeshAgent>();
+            navAgent = this.gameObject.GetComponent<UnityEngine.AI.NavMeshAgent>();
             animator = this.gameObject.GetComponent<Animator>();
             rbody = this.gameObject.GetComponent<Rigidbody>();
             highlighter = new Highlighter(this.gameObject);

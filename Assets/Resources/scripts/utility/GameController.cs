@@ -81,9 +81,9 @@ public class GameController : MonoBehaviour {
 
     IEnumerator LoadDevice(string newDevice)
     {
-        UnityEngine.VR.VRSettings.LoadDeviceByName(newDevice);
+        UnityEngine.XR.XRSettings.LoadDeviceByName(newDevice);
         yield return null;
-        UnityEngine.VR.VRSettings.enabled = VREnabled;
+        UnityEngine.XR.XRSettings.enabled = VREnabled;
     }
 
     // Use this for initialization

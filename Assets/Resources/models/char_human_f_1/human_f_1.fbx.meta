@@ -178,6 +178,7 @@ ModelImporter:
     100340: F_asian_1_Braid01
     100342: F_asian_1_Eyebrow001
     100344: F_asian_1_Eyelashes04
+    100346: F_asian_1_High-poly
     400000: breast_L
     400002: breast_R
     400004: clavicle_L
@@ -351,6 +352,7 @@ ModelImporter:
     400340: F_asian_1_Braid01
     400342: F_asian_1_Eyebrow001
     400344: F_asian_1_Eyelashes04
+    400346: F_asian_1_High-poly
     2300000: F_uniform_tank
     3300000: F_uniform_tank
     4300000: F_asian_1_Body
@@ -361,6 +363,7 @@ ModelImporter:
     4300010: F_asian_1_Eyelashes04
     4300012: F_asian_1_Eyebrow001
     4300014: F_asian_1_Braid01
+    4300016: F_asian_1_High-poly
     9500000: //RootNode
     13700000: F_asian_1_Body
     13700002: F_uniform_bottom
@@ -370,6 +373,7 @@ ModelImporter:
     13700010: F_asian_1_Eyebrow001
     13700012: F_asian_1_Eyelashes04
     13700014: F_uniform_tank
+    13700016: F_asian_1_High-poly
   materials:
     importMaterials: 0
     materialName: 0

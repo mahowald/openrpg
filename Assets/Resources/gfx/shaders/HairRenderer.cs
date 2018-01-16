@@ -449,7 +449,7 @@ public class HairRenderer : MonoBehaviour {
 		}
 		
 		public void SortIndices(Vector3 eye, int[] indices, float distScale) {
-			Profiler.BeginSample("SortIndices");
+			UnityEngine.Profiling.Profiler.BeginSample("SortIndices");
 			for(int i = 0, n = sortingList.Length; i < n; ++i) {
 				var sp = sortablePatches[i];
 				//Debug.Log(string.Format("SP: {0}  L: {1}  D2: {2}  D: {3}  C: {4}", i, sp.layer, Vector3.SqrMagnitude(eye - sp.centroid), Vector3.Distance(eye, sp.centroid), sp.centroid));
@@ -472,7 +472,7 @@ public class HairRenderer : MonoBehaviour {
 				off += spi.Length;
 			}
 			
-			Profiler.EndSample();
+			UnityEngine.Profiling.Profiler.EndSample();
 		}
 	}
 	#endregion
