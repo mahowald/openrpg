@@ -4,6 +4,11 @@
 
 - "Pause": pauses any listening objects.
 - "Unpause": unpauses any listening objects.
+- "ViewMode: FreeLook": Free look view mode
+- "ViewMode: Standard": Standard view mode
+
+## Bool events
+- "Orthographic Mode": True = orthographic mode, False = exiting orthographic mode
 
 ## Actor Events
 
