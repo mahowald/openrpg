@@ -113,19 +113,6 @@ namespace ActorSystem
         private Vector3 destination;
         private Rigidbody rbody;
 
-        // Where to go when we're in click-to-move
-        // TODO: remove this
-        private void SetClickDestination(Vector3 targetDestination)
-        {
-            if (movementController != MovementController.Player)
-                return;
-
-            Geometry.Locatable target = new Geometry.Locatable();
-            target.Position = targetDestination;
-            target.Direction = Vector3.zero;
-            QueuedAction = new LocatableEmptyAction(this, target);
-        }
-
         // This is how the Actor receives commands from the UI to do things.
         // Most player character actions come this way, although
         // we may choose to use a different system for NPCs. 
@@ -276,7 +263,7 @@ namespace ActorSystem
         /// </summary>
         public void Pause()
         {
-            navAgent.Stop();
+            navAgent.isStopped = true;
             animatorSpeed = animator.speed;
             animator.speed = 0; // pause the animator
             movingVelocity = navAgent.velocity;
@@ -289,7 +276,7 @@ namespace ActorSystem
         /// </summary>
         public void Unpause()
         {
-            navAgent.Resume();
+            navAgent.isStopped = false;
             animator.speed = animatorSpeed; // unpause the animator
             navAgent.velocity = movingVelocity;
             paused = false;
@@ -363,7 +350,8 @@ namespace ActorSystem
 
         // -- ACTION HANDLING -- //
         private ActionHandler actionHandler;
-        public ActionMapper actionMapper; // map contexts to actions
+        public ActionBag actionBag; // Maintain available actions for this Actor
+
 
         /// <summary>
         /// The next Action the Actor intends to perform.
@@ -423,7 +411,7 @@ namespace ActorSystem
             rbody = this.gameObject.GetComponent<Rigidbody>();
             highlighter = new Highlighter(this.gameObject);
             actionHandler = new ActionHandler(this);
-            actionMapper = new ActionMapper();
+            actionBag = new ActionBag(this);
 
             attributes.attributes = new Dictionary<string, float> { { "ammo", 5f}, { "health", 10f} };
         }
@@ -466,7 +454,9 @@ namespace ActorSystem
                 navAgent.updatePosition = false;
                 // navAgent.updateRotation = true;
                 navAgent.nextPosition = transform.position;
-                
+
+                // Update the cooldowns
+                actionBag.Update(Time.deltaTime);
 
             }
             

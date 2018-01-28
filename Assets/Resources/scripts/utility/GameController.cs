@@ -9,7 +9,9 @@ public class GameController : MonoBehaviour {
 
     private static bool vrEnabled = false;
     private static Transform standardCameraRig;
-    private static Transform vrCameraRig;
+    // private static Transform vrCameraRig;
+
+    /**
     public static bool VREnabled
     {
         set {
@@ -19,6 +21,7 @@ public class GameController : MonoBehaviour {
         }
         get { return vrEnabled; }
     }
+    **/
 
     public enum ViewMode { Standard, FreeLook }; 
     private static ViewMode viewMode = ViewMode.Standard;
@@ -69,28 +72,33 @@ public class GameController : MonoBehaviour {
 
     void Awake()
     {
+        /**
         if(VREnabled)
         {
             StartCoroutine(LoadDevice("OpenVR"));
         }
-        else
-        {
+        **/
+        
+        // else
+        // {
             StartCoroutine(LoadDevice(""));
-        }
+        // }
     }
 
     IEnumerator LoadDevice(string newDevice)
     {
         UnityEngine.XR.XRSettings.LoadDeviceByName(newDevice);
         yield return null;
-        UnityEngine.XR.XRSettings.enabled = VREnabled;
+        UnityEngine.XR.XRSettings.enabled = false;
+        // UnityEngine.XR.XRSettings.enabled = VREnabled;
     }
 
     // Use this for initialization
     void Start() {
         gameController = this;
-        vrCameraRig = GameObject.FindGameObjectWithTag("VRCamera").transform;
+        // vrCameraRig = GameObject.FindGameObjectWithTag("VRCamera").transform;
         standardCameraRig = GameObject.FindGameObjectWithTag("StandardCamera").transform;
+        /**
         if (VREnabled)
         {
             standardCameraRig.gameObject.SetActive(false);
@@ -101,6 +109,8 @@ public class GameController : MonoBehaviour {
             vrCameraRig.gameObject.SetActive(false);
             gameCamera = standardCameraRig.GetComponentInChildren<Camera>().transform;
         }
+        **/
+        gameCamera = standardCameraRig.GetComponentInChildren<Camera>().transform;
         actors = new List<ActorSystem.Actor>(GameObject.FindObjectsOfType<ActorSystem.Actor>());
 
 
@@ -108,8 +118,9 @@ public class GameController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (!VREnabled)
-            Do3DMouseSelect();
+        // if (!VREnabled)
+        //    Do3DMouseSelect();
+        Do3DMouseSelect();
         TogglePause();
         ToggleViewMode();
 	}

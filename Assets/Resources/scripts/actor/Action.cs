@@ -14,12 +14,17 @@ namespace ActorSystem
 
     public enum ActionAnimation { None, BasicAttack };
 
+
+    /// <summary>
+    /// The interface for an Action.
+    /// </summary>
     public interface IAction
     {
         void DoAction();
         Vector3 TargetPosition { get; }
         float Range { get; } // the range of the action
         ActionAnimation Animation { get; } // the animation to play
+        System.Action Callback { get; set; } // callback function to execute during DoAction()
     }
 
     public interface IAction<T> : IAction
@@ -32,7 +37,10 @@ namespace ActorSystem
     {
         private T target; // who/what the action is done to
         private Actor source; // who is doing the action
-        protected ActionAnimation animation = ActionAnimation.None; 
+        private System.Action callback = null;
+
+        protected ActionAnimation animation = ActionAnimation.None;
+
 
         public T Target
         {
@@ -72,7 +80,17 @@ namespace ActorSystem
         }
 
         // Perform the action
-        abstract public void DoAction();
+        virtual public void DoAction()
+        {
+            if (Callback != null)
+                Callback();
+        }
+
+        virtual public System.Action Callback
+        {
+            get { return callback; }
+            set { callback = value;  }
+        }
     }
 
     // Action definitions (in YAML) get deserialized into
@@ -83,6 +101,9 @@ namespace ActorSystem
         IActionPrototype Deserialize(string input); // Deserialize the prototype from a (YAML) string
         IAction Instantiate<T>(Actor source, T target); // Create an actual Action from the prototype
         bool Allowed(Actor source); // check if the actor is allowed to perform this action
+        bool ValidTarget<T>(T target); // Can the Actor perform this action on a target?
+        int NumUses(Actor source); // How many times can this action be performed? (-1 = infinite)
+        float CooldownTime(Actor source); // What is the starting cooldown (in seconds) for this action?
     }
 
     public class EmptyActionPrototype : Utility.SerializableElement, IActionPrototype
@@ -101,6 +122,21 @@ namespace ActorSystem
         {
             return true;
         }
+
+        public bool ValidTarget<T>(T target)
+        {
+            return true;
+        }
+
+        public int NumUses(Actor source)
+        {
+            return -1;
+        }
+
+        public float CooldownTime(Actor source)
+        {
+            return 0f;
+        }
     }
 
     public class EmptyAction<T> : Action<T>, IAction<T>
@@ -116,6 +152,7 @@ namespace ActorSystem
 
         public override void DoAction()
         {
+            base.DoAction();
             return;
         }
     }
@@ -143,6 +180,21 @@ namespace ActorSystem
         public bool Allowed(Actor source)
         {
             return true;
+        }
+
+        public bool ValidTarget<T>(T target)
+        {
+            return (target is ILocatable);
+        }
+
+        public float CooldownTime(Actor source)
+        {
+            return 0;
+        }
+
+        public int NumUses(Actor source)
+        {
+            return -1;
         }
     }
 
@@ -268,6 +320,11 @@ namespace ActorSystem
             return new CombatActionPrototype();
         }
 
+        public virtual bool ValidTarget<T>(T target)
+        {
+            return true;
+        }
+
         // Check whether an action can be performed.
         public bool Allowed(Actor source)
         {
@@ -288,6 +345,25 @@ namespace ActorSystem
             }
             return true;
         }
+
+        public int NumUses(Actor source)
+        {
+            return -1;
+        }
+
+        public float CooldownTime(Actor source)
+        {
+            Dictionary<string, float> variables = new Dictionary<string, float>();
+            Attributes sourceAtts = source.attributes;
+            foreach (string key in sourceAtts.attributes.Keys)
+            {
+                string newname = "source." + key;
+                float value = sourceAtts[key];
+                variables.Add(newname, value);
+            }
+            return cooldown.Evaluate(variables);
+        }
+
 
     }
 
@@ -398,6 +474,7 @@ namespace ActorSystem
 
         public override void DoAction()
         {
+            base.DoAction();
             var actionData = this.SourceActionData();
             Source.HandleAction(actionData);
         }
@@ -437,6 +514,11 @@ namespace ActorSystem
             {
                 throw new Exception("SingleTargetDamageActionPrototype: Target is not an Actor");
             }
+        }
+
+        public override bool ValidTarget<T>(T target)
+        {
+            return target is Actor;
         }
 
     }
@@ -576,6 +658,7 @@ namespace ActorSystem
 
         override public void DoAction() 
         {
+            base.DoAction();
             ActionData sourceActionData = SourceActionData();
             Source.HandleAction(sourceActionData);
             Projectile.Create(projectileData, Source, Target);
