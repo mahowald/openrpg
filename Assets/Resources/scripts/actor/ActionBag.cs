@@ -132,6 +132,11 @@ namespace ActorSystem
             ResetUses();
         }
 
+        public float Cooldown(IActionPrototype prototype)
+        {
+            return cooldowns[prototype];
+        }
+
         public bool Available(IActionPrototype prototype)
         {
             if (!actions.Contains(prototype))

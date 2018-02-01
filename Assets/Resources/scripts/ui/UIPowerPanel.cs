@@ -16,13 +16,16 @@ namespace UserInterface
         bool orthographicMode = false;
 
         public DynamicButton genericButton;
+        public Image cooldownImage;
         public UIBase contextUI;
 
 
         private List<DynamicButton> buttonPool;
+        private Dictionary<DynamicButton, Tuples.Tuple<ActorSystem.IActionPrototype, Image>> buttonMap;
 
         private ActorSystem.IActionPrototype queuedProtoAction = null;
         private ActorSystem.Actor selectedActor = null;
+
 
 
         // Use this for initialization
@@ -30,6 +33,7 @@ namespace UserInterface
         {
             panelTransform = this.GetComponent<RectTransform>();
             buttonPool = new List<DynamicButton>();
+            buttonMap = new Dictionary<DynamicButton, Tuples.Tuple<ActorSystem.IActionPrototype, Image>>();
         }
 
         // Update is called once per frame
@@ -38,7 +42,7 @@ namespace UserInterface
             if (selectedActor == null)
             {
                 selectedActor = GameController.PlayerActor;
-                RefreshButtonPool();
+                ReloadButtonPool();
             }
             if (orthographicMode) // always show it in ortho mode
             {
@@ -64,13 +68,34 @@ namespace UserInterface
                     StartCoroutine(Hide(this.duration));
                     hidden = true;
                 }
-
             }
+
+            if (!hidden)
+                RefreshCooldowns();
 
 
         }
 
-        private void RefreshButtonPool()
+        private void RefreshCooldowns()
+        {
+            foreach(var item in buttonMap)
+            {
+                var pwr = item.Value.Item1;
+                var img = item.Value.Item2;
+
+                float cooldown = selectedActor.actionBag.Cooldown(pwr);
+                if (cooldown <= 0f)
+                    img.fillAmount = 0f;
+                else
+                {
+
+                    float cooldownPrcnt = selectedActor.actionBag.Cooldown(pwr) / pwr.CooldownTime(selectedActor);
+                    img.fillAmount = cooldownPrcnt;
+                }
+            }
+        }
+
+        private void ReloadButtonPool()
         {
             ClearButtonPool();
 
@@ -81,6 +106,8 @@ namespace UserInterface
                 if (selectedActor.actionBag.Available(protoaction))
                 {
                     DynamicButton d_actionbutton = Instantiate(genericButton, panelTransform) as DynamicButton;
+                    Image d_cooldownimg = Instantiate(cooldownImage, d_actionbutton.RectTransform) as Image;
+                    d_cooldownimg.rectTransform.sizeDelta = new Vector2(d_actionbutton.RectTransform.rect.width, d_actionbutton.RectTransform.rect.height);
                     d_actionbutton.Text = protoaction.Name;
 
                     var local_protoaction = protoaction;
@@ -92,12 +119,16 @@ namespace UserInterface
                     
                     d_actionbutton.AddListener(btn_fcn);
                     buttonPool.Add(d_actionbutton);
+                    buttonMap.Add(d_actionbutton, new Tuples.Tuple<ActorSystem.IActionPrototype, Image>(local_protoaction, d_cooldownimg));
                 }
-                else
+                else // Does this code path ever get hit?
                 {
                     DynamicButton d_actionbutton = Instantiate(genericButton, panelTransform) as DynamicButton;
+                    Image d_cooldownimg = Instantiate(cooldownImage, d_actionbutton.RectTransform) as Image;
+                    d_cooldownimg.rectTransform.sizeDelta = new Vector2(d_actionbutton.RectTransform.rect.width, d_actionbutton.RectTransform.rect.height);
                     d_actionbutton.Text = "(" + protoaction.Name + ")";
                     buttonPool.Add(d_actionbutton);
+                    buttonMap.Add(d_actionbutton, new Tuples.Tuple<ActorSystem.IActionPrototype, Image>(protoaction, d_cooldownimg));
                 }
             }
             LayoutButtonPool();
@@ -106,8 +137,12 @@ namespace UserInterface
         private void ClearButtonPool()
         {
             foreach (DynamicButton btn in buttonPool)
+            {
+                Destroy(buttonMap[btn].Item2.gameObject);
                 Destroy(btn.gameObject);
+            }
             buttonPool.Clear();
+            buttonMap.Clear();
         }
 
         private void LayoutButtonPool()
@@ -241,7 +276,7 @@ namespace UserInterface
         {
             selectedActor = a;
             queuedProtoAction = null;
-            RefreshButtonPool();
+            ReloadButtonPool();
         }
 
         public void OnEnable()
