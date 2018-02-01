@@ -25,6 +25,8 @@ namespace UserInterface
 
         private List<DynamicButton> buttonPool;
 
+        public bool powerButtonSelected = false;
+
         // Use this for initialization
         void Start()
         {
@@ -40,7 +42,6 @@ namespace UserInterface
         // Update is called once per frame
         void Update()
         {
-
         }
 
         void Relocate(Vector3 dest, Vector3 offset)
@@ -50,15 +51,21 @@ namespace UserInterface
 
         void ContextClick(ActorSystem.Actor actor)
         {
-            actorContext = actor;
-            GenerateButtonPool(ActorSystem.ActionContext.Actor, actor.Position);
+            if (!powerButtonSelected)
+            {
+                actorContext = actor;
+                GenerateButtonPool(ActorSystem.ActionContext.Actor, actor.Position);
+            }
         }
 
         void ContextClick(Vector3 location)
         {
-            actorContext = null;
-            pointContext = location;
-            GenerateButtonPool(ActorSystem.ActionContext.Location, location);
+            if (!powerButtonSelected)
+            {
+                actorContext = null;
+                pointContext = location;
+                GenerateButtonPool(ActorSystem.ActionContext.Location, location);
+            }
         }
 
         void GenerateButtonPool(ActorSystem.ActionContext context, Vector3 location)
@@ -80,6 +87,7 @@ namespace UserInterface
                     break;
             }
 
+            /**
             // Create buttons from each action
             foreach(ActorSystem.IActionPrototype protoaction in actions)
             {
@@ -108,6 +116,7 @@ namespace UserInterface
                     buttonPool.Add(d_actionbutton);
                 }
             }
+            **/
             
             // add the swap button
             if(context == ActorSystem.ActionContext.Actor)
@@ -125,19 +134,26 @@ namespace UserInterface
             uiPanel.gameObject.SetActive(true);
             Relocate(location, offset);
 
-            ButtonPositioner.layout(buttonPool);
+            if(buttonPool.Count > 0)
+                ButtonPositioner.layout(buttonPool);
         }
 
         void ActorRightSelected(ActorSystem.Actor actor)
         {
-            actorContext = actor;
-            Attack();
+            if (!powerButtonSelected)
+            {
+                actorContext = actor;
+                Attack();
+            }
         }
 
         void PointRightSelected(Vector3 point)
         {
-            pointContext = point;
-            Move();
+            if (!powerButtonSelected)
+            {
+                pointContext = point;
+                Move();
+            }
         }
 
         /**
