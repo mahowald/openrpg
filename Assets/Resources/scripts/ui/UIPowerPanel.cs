@@ -209,7 +209,6 @@ namespace UserInterface
 
         bool MouseOver()
         {
-
             if (!Cursor.visible)
                 return false;
 
@@ -233,7 +232,13 @@ namespace UserInterface
 
         IEnumerator DelayToNextFrame(System.Action func)
         {
-            yield return null;
+            return DelayToNextFrame(func, 1);
+        }
+
+        IEnumerator DelayToNextFrame(System.Action func, int frames)
+        {
+            for(int i = 0; i < frames; i++)
+                yield return null;
             func();
         }
 
@@ -248,7 +253,7 @@ namespace UserInterface
                     ActorSystem.IAction action = null;
                     action = selectedActor.actionBag.Instantiate(queuedProtoAction, t);
                     EventManager.TriggerEvent("DoAction", selectedActor, action);
-                    contextUI.powerButtonSelected = false;
+                    StartCoroutine(DelayToNextFrame(() => { contextUI.powerButtonSelected = false; }));
                     queuedProtoAction = null;
                 }
             }
@@ -263,7 +268,7 @@ namespace UserInterface
                     ActorSystem.IAction action = null;
                     action = selectedActor.actionBag.Instantiate(queuedProtoAction, target);
                     EventManager.TriggerEvent("DoAction", selectedActor, action);
-                    contextUI.powerButtonSelected = false; // TODO: set this in the next frame.
+                    StartCoroutine(DelayToNextFrame(() => { contextUI.powerButtonSelected = false; }));
                     queuedProtoAction = null;
                 }
             }
@@ -298,23 +303,6 @@ namespace UserInterface
             EventManager.StopListening<Vector3>("ContextClick", PointSelected);
             EventManager.StopListening<ActorSystem.Actor>("ActorClicked", Swap);
         }
-
-        /**
-        public void OnEnable()
-        {
-            EventManager.StartListening("Pause", Pause);
-            EventManager.StartListening("Unpause", Unpause);
-            EventManager.StartListening<Actor>("ActorClicked", ActorClicked);
-            EventManager.StartListening<Actor, IAction>("DoAction", DoActionMessage);
-        }
-        public void OnDisable()
-        {
-            EventManager.StopListening("Pause", Pause);
-            EventManager.StopListening("Unpause", Unpause);
-            EventManager.StopListening<Actor>("ActorClicked", ActorClicked);
-            EventManager.StopListening<Actor, IAction>("DoAction", DoActionMessage);
-        }
-        **/
 
     }
 }

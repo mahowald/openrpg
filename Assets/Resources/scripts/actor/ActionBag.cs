@@ -193,7 +193,7 @@ namespace ActorSystem
             ProjectileData shootData = new ProjectileData();
             shootData.actionPrototype = new SingleTargetDamageActionPrototype();
             shootData.speed = 5f;
-            shootData.affectedByGravity = true;
+            shootData.affectedByGravity = false;
             shootData.ignoreCollisions = false;
             shootPrototype.ProjectileData = shootData;
 
