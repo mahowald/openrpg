@@ -20,7 +20,17 @@ public class BlasterBolt : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        var e = Instantiate<Transform>(explosion, this.transform.position, this.transform.rotation);
+        RaycastHit hit;
+        Ray ray = new Ray(this.transform.position, this.transform.forward);
+
+        Vector3 normal = this.transform.forward;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            normal = hit.normal;
+        }
+
+        var e = Instantiate<Transform>(explosion, this.transform.position, Quaternion.LookRotation(-1f*normal, Vector3.up));
 
         Destroy(this.gameObject);
     }
